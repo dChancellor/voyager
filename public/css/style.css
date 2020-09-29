@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+body {
+  background-color: #13132c;
+  text-align: center;
+  color: rgb(240, 241, 255);
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.5rem;
+  overflow-x: hidden;
+}
+a{
+  text-decoration: none;
+}
+navbar {
+  display: flex;
+  justify-content: flex-end;
+  width: 87%;
+  padding-top: 50px;
+}
+navbar a{
+  line-height: 1.5em;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.0em;
+  text-shadow: 1px 1px #13132c65;
+  margin-left:5px;
+  width:135px;
+  border-radius: 3px;
+  display:inline-block;
+}
+li{
+  list-style-type: none;
+  display:inline-block;
+}
+#logout a{
+  color: rgba(165, 64, 64, 0.856);
+}
+#logout:hover{
+  background-color: #702e2e69;
+}
+#swap a{
+  color: rgba(65, 134, 173, 0.74);;
+}
+#swap:hover{
+  background-color:rgba(44, 75, 93, 0.568);;
+}
+header {
+  margin-top: 25vh;
+}
+h1 {
+  font-family: 'Lobster', sans-serif;
+  font-size: 6vh;
+  margin: 65px;
+}
+h2 {
+  font-family: 'Lobster', sans-serif;
+  font-size: 4rem;
+  margin: 80px;
+}
+
+#app {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+}
+#button-google-auth {
+  background-color: #db4437;
+  border-radius: 3px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  line-height: 2.5em;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.8rem;
+  min-width: 15vw;
+  text-shadow: 1px 1px #13132c65;
+  color: rgb(255, 240, 240);
+}
+#button-google-auth:hover {
+  background-color: #c8473c;
+}
+#input-container{
+  display:flex;
+  flex-flow:column nowrap;
+  align-items:center;
+  margin-top:45px;
+}
+label {
+  font-variant: small-caps;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: rgb(198, 200, 223);
+}
+input {
+  padding-left: 15px;
+  padding-right: 15px;
+  border: none;
+  border-radius: 20px;
+  max-width: 35vw;
+  min-width: 25vw;
+  color: rgb(198, 200, 223);
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.8rem;
+  text-align: center;
+  height: 50px;
+  background: rgba(91, 79, 148, 0.19);
+  margin-top: 2px;
+}
+input:hover,
+:focus {
+  background: rgba(136, 126, 185, 0.479);
+  outline: none;
+}
+.submit {
+  background-color: #2d7d9c;
+  margin-top: 40px;
+  border-radius: 3px;
+  padding-left: 15px;
+  padding-right: 15px;
+  line-height: 2em;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.7rem;
+  text-shadow: 1px 1px #13132c65;
+  color: rgb(255, 240, 240);
+  display: none;
+  cursor: pointer;
+}
+.submit:hover {
+  background-color: #326380;
+}
+#sketch-container {
+  display: block;
+  position: absolute;
+  bottom: 0px;
+  z-index: -99;
+}
+#response-card {
+  background-color: rgba(33, 68, 89, 0.48);
+  border-radius: 40px;
+  margin: auto;
+  padding: 25px;
+  margin-top: 40px;
+  display: none;
+}
+.response {
+  font-size: 2rem;
+  color: rgb(198, 200, 223);
+  line-height: 2rem;
+}
+#response-url {
+  color: rgb(108, 115, 190);
+}
+
+.input-container-newurl {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+}
+.input-container-newurl * {
+  margin-top: 20px;
+}
+#privacy{
+
+  font-family: 'Roboto', sans-serif;
+  color:rgb(27, 27, 27);
+  height:1200px;
+  overflow-y: scroll;
+  width:800px;
+  margin-top:100px;
+  text-align:left;
+  font-size:20px;
+  background-color: #e0dbdbbf;
+padding: 65px;
+border-radius: 54px;
+}
+#privacy h3 {
+  font-family: 'Roboto', sans-serif;
+  text-align:center;
+  margin-top:35px;
+}
+#privacy h2 {
+  font-family: 'Roboto', sans-serif;
+  text-align:center;
+  font-size:55px;
+  margin:15px;
+}
+
+@media only screen and (max-height:1000px){
+  #sketch-container{
+    display:none;
+  }
+  header {
+    margin-top: 10vh;
+  }
+}

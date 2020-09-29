@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">  
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Voyager</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <navbar>
+      <ul>
+        <li id="swap"><a href="../auth/new">Add URL</a></li>
+        <li id="logout"><a href="../oauth/logout">Logout</a></li>
+      </ul>
+    </navbar>
+    <header>
+      <h1>Voyage Across the Web</h1>
+    </header>
+    <main id="app">
+        <label for="input-user">user to create</label>
+        <input
+          autocomplete="off"
+          class="input req"
+          id="input-user"
+          onfocus="focusFunction('show')"
+          onblur="focusFunction('hide')"
+        />
+        <a onclick="createUser()" class="submit">Submit</a>
+      <div id="response-card">
+        <div class="response" id="response-message"></div>
+      </div>
+
+      <!-- Required to remove 'Loading...' text -->
+      <div id="p5_loading"></div>
+      <!-- Parent to the sketch canvas -->
+      <div id="sketch-container"></div>
+    </main>
+    <script src="../js/app.js"></script>
+    <script src="../js/p5.min.js"></script>
+    <script src="../js/sketch.js"></script>
+  </body>
+</html>
