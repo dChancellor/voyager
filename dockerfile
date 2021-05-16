@@ -1,17 +1,11 @@
-FROM node:12
+FROM node:12-alpine
 
-# To Create nodejsapp directory
-WORKDIR /nodejsapp
+WORKDIR /usr/src/app
 
-# To Install All dependencies
-
-COPY package*.json ./
+COPY ./package.json .
 
 RUN npm install
 
-# To copy all application packages 
 COPY . .
 
-# Expose port 3000 and Run the server.js file to start node js application
-EXPOSE 4000
-CMD [ "node", "index.js" ]
+CMD ["npm", "start"]

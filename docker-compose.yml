@@ -1,19 +1,16 @@
 version: '3.8'
 
 services:
-  url-shortener:
+  app:
+    image: url_shortener
     build: .
-    volumes:
-        - .:/usr/app/
-        - /usr/app/node_modules
+    restart: always
     ports:
-        - '4000:4000'
+      - 5000:${PORT}
     environment:
-        - NODE_ENV=${NODE_ENV}
-        - PORT=${PORT}
-        - DOMAIN=${DOMAIN}
-        - MONGODB_URI=${MONGODB_URI}
-        - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-        - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-        - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
-        - COOKIE_KEY=${COOKIE_KEY}
+      - PORT=${PORT}
+      - HOST=${HOST}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - COOKIE_KEY=${COOKIE_KEY}
