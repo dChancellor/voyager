@@ -3,6 +3,8 @@ version: '3.8'
 services:
   app:
     image: url_shortener
+    depends_on:
+      - mongo
     build: .
     restart: always
     ports:
@@ -14,3 +16,6 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
       - COOKIE_KEY=${COOKIE_KEY}
+      - MONGO_USERNAME=${MONGO_USERNAME}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_PORT=${MONGO_PORT}
