@@ -14,8 +14,9 @@ const schema = yup.object().shape({
   url: yup.string().trim().url().required(),
 });
 
-const db = require('monk')(process.env.MONGODB_URI);
-
+const monk = require('monk');
+const db = monk(`${MONGO_USERNAME}:${MONGO_PASSWORD}@localhost:${MONGO_PORT}/lwspw?authSource=admin`);
+db.then(() => console.log('Connected!'));
 const urls = db.get('urls');
 const users = db.get('users');
 const failedRequests = db.get('failedRequests');
@@ -28,7 +29,7 @@ module.exports = {
   failedRequests,
   pageNotFound,
   pageNewUrl,
-  pageNewUser, 
+  pageNewUser,
   quietHTML,
   privacyHTML,
 };

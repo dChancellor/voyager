@@ -5,7 +5,7 @@ const {
   pageNewUrl,
   pageNewUser,
   quietHTML,
-  privacyHTML
+  privacyHTML,
 } = require('../lib/constants');
 
 async function getFromSlug(req, res, next) {
@@ -22,22 +22,22 @@ async function getFromSlug(req, res, next) {
 }
 
 async function getFromUrl(req, res, next) {
-  let url = `https://${req.params.id}`
+  let url = `https://${req.params.id}`;
   try {
-    const slug = await urls.findOne({url});
+    const slug = await urls.findOne({ url });
     if (slug) {
       return res.json(slug);
-    }  
+    }
     await schema.validate({
       url,
     });
     return res.status(404).json({
-      error: "Shortened domain not found."
-    })
+      error: 'Shortened domain not found.',
+    });
   } catch (error) {
     return res.status(404).json({
-      error: "Unrecognized url format."
-    })
+      error: 'Unrecognized url format.',
+    });
   }
 }
 
@@ -55,4 +55,11 @@ function inputNewUrl(req, res, next) {
 function inputNewUser(req, res, next) {
   return res.sendFile(pageNewUser);
 }
-module.exports = { getFromSlug, inputNewUrl, inputNewUser, serenity, getFromUrl,privacy };
+module.exports = {
+  getFromSlug,
+  inputNewUrl,
+  inputNewUser,
+  serenity,
+  getFromUrl,
+  privacy,
+};

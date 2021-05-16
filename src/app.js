@@ -9,8 +9,8 @@ const slowDown = require('express-slow-down');
 require('dotenv').config();
 
 const api = require('./api/router');
-const initialize = require('./database/init');
-initialize();
+const initializeDB = require('./db/init');
+initializeDB();
 const errors = require('./middlewares/error');
 const auth = require('./middlewares/auth');
 const { getFromSlug, serenity, getFromUrl, privacy } = require('./api/get');

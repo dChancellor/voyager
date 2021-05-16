@@ -1,5 +1,5 @@
 const { nanoid } = require('nanoid');
-const { db, urls, schema, pageNewUser, users } = require('../lib/constants');
+const { db, urls, schema, pageNewUser, users } = require('./lib/constants');
 
 async function makeNewUrl(req, res, next) {
   let { slug, url } = req.body;
