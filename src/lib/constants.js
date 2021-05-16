@@ -15,7 +15,9 @@ const schema = yup.object().shape({
 });
 
 const monk = require('monk');
-const db = monk(`${MONGO_USERNAME}:${MONGO_PASSWORD}@localhost:${MONGO_PORT}/lwspw?authSource=admin`);
+const db = monk(
+  `${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@localhost:${process.env.MONGO_PORT}/lwspw?authSource=admin`
+);
 db.then(() => console.log('Connected!'));
 const urls = db.get('urls');
 const users = db.get('users');
