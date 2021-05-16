@@ -26,15 +26,15 @@ function focusFunction(event) {
     : (inputs.forEach((input) => {
         input.value != '' ? counter++ : null, (input.placeholder = '');
       }),
-      counter === 0 ? (submitButton.style.display = '') : (submitButton.style.display = 'block'));
+      counter === 0
+        ? (submitButton.style.display = '')
+        : (submitButton.style.display = 'block'));
 }
 
 function fillResponseCard(res, result, type) {
-
-  console.log("here")
   res === 'url'
-    ? (  responseUrl.innerHTML = '',
-      responseUrl.href = '',
+    ? ((responseUrl.innerHTML = ''),
+      (responseUrl.href = ''),
       (responseCard.style.backgroundColor = 'rgba(33, 68, 89, 0.48)'),
       (responseMessage.innerHTML = `You have ${type} a shortened id at `),
       (responseUrl.innerHTML = `${window.location.hostname}/${result.slug}`),
