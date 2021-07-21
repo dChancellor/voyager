@@ -39,6 +39,13 @@ const databases = {
   },
 };
 
+const googleAuthStrategy = {
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: process.env.GOOGLE_CALLBACK_URL,
+  passReqToCallback: true,
+};
+
 const validUrlRegex =
   /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm;
 
@@ -46,12 +53,12 @@ const schema = yup.object().shape({
   slug: yup
     .string()
     .trim()
-    .matches(/^[a-zA-Z0-9]+[a-zA-Z0-9-._]*[a-zA-Z0-9]+$/i),
-  // .min(2)
-  // .max(5),
+    .matches(/^[a-zA-Z0-9]+[a-zA-Z0-9-._]*[a-zA-Z0-9]+$/i)
+    .min(2)
+    .max(5),
   url: yup.string().matches(validUrlRegex, 'URL is not valid').required(),
 });
 
 let db = new Database(databases[environment].uri);
 
-module.exports = { cookieKey, db, databases, schema, hostname, port, environment };
+module.exports = { cookieKey, db, databases, schema, hostname, port, environment, googleAuthStrategy };

@@ -53,7 +53,11 @@ class Database {
   }
   async getUserById(id) {
     const users = this.db.collection('users');
-    return await users.findOne({ _id: id });
+    return await users.findOne({ id });
+  }
+  async addFailedLogin(userObject) {
+    const failedRequests = this.db.collection('failedRequests');
+    return await failedRequests.insertOne(userObject);
   }
   async deleteUserById(id) {
     const users = this.db.collection('users');
