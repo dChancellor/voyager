@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1626847074976" clover="3.2.0">
+  <project timestamp="1626847074976" name="All files">
+    <metrics statements="59" coveredstatements="59" conditionals="9" coveredconditionals="9" methods="19" coveredmethods="19" elements="87" coveredelements="87" complexity="0" loc="59" ncloc="59" packages="1" files="3" classes="3"/>
+    <file name="config.js" path="/home/derek/coding/url_shortener/server/lib/config.js">
+      <metrics statements="12" coveredstatements="12" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <line num="1" count="2" type="stmt"/>
+      <line num="2" count="2" type="stmt"/>
+      <line num="3" count="2" type="stmt"/>
+      <line num="5" count="2" type="stmt"/>
+      <line num="7" count="2" type="stmt"/>
+      <line num="8" count="2" type="stmt"/>
+      <line num="9" count="2" type="stmt"/>
+      <line num="11" count="2" type="stmt"/>
+      <line num="43" count="2" type="stmt"/>
+      <line num="45" count="2" type="stmt"/>
+      <line num="55" count="2" type="stmt"/>
+      <line num="57" count="2" type="stmt"/>
+    </file>
+    <file name="database.js" path="/home/derek/coding/url_shortener/server/lib/database.js">
+      <metrics statements="33" coveredstatements="33" conditionals="2" coveredconditionals="2" methods="17" coveredmethods="17"/>
+      <line num="1" count="2" type="stmt"/>
+      <line num="5" count="3" type="stmt"/>
+      <line num="6" count="3" type="stmt"/>
+      <line num="7" count="3" type="stmt"/>
+      <line num="11" count="3" type="stmt"/>
+      <line num="15" count="3" type="stmt"/>
+      <line num="16" count="3" type="stmt"/>
+      <line num="17" count="3" type="stmt"/>
+      <line num="21" count="3" type="stmt"/>
+      <line num="24" count="3" type="stmt"/>
+      <line num="28" count="1" type="stmt"/>
+      <line num="29" count="1" type="stmt"/>
+      <line num="30" count="1" type="stmt"/>
+      <line num="33" count="2" type="stmt"/>
+      <line num="36" count="2" type="stmt"/>
+      <line num="39" count="1" type="stmt"/>
+      <line num="42" count="1" type="stmt"/>
+      <line num="45" count="1" type="stmt"/>
+      <line num="48" count="2" type="stmt"/>
+      <line num="51" count="1" type="stmt"/>
+      <line num="52" count="1" type="stmt"/>
+      <line num="55" count="2" type="stmt"/>
+      <line num="56" count="2" type="stmt"/>
+      <line num="59" count="1" type="stmt"/>
+      <line num="60" count="1" type="stmt"/>
+      <line num="63" count="5" type="stmt"/>
+      <line num="64" count="5" type="stmt"/>
+      <line num="67" count="10" type="stmt"/>
+      <line num="68" count="10" type="stmt"/>
+      <line num="69" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="72" count="1" type="stmt"/>
+      <line num="73" count="1" type="stmt"/>
+      <line num="77" count="2" type="stmt"/>
+    </file>
+    <file name="helpers.js" path="/home/derek/coding/url_shortener/server/lib/helpers.js">
+      <metrics statements="14" coveredstatements="14" conditionals="7" coveredconditionals="7" methods="2" coveredmethods="2"/>
+      <line num="1" count="1" type="stmt"/>
+      <line num="2" count="1" type="stmt"/>
+      <line num="3" count="1" type="stmt"/>
+      <line num="6" count="9" type="stmt"/>
+      <line num="7" count="9" type="stmt"/>
+      <line num="8" count="9" type="cond" truecount="4" falsecount="0"/>
+      <line num="9" count="9" type="stmt"/>
+      <line num="10" count="9" type="stmt"/>
+      <line num="11" count="9" type="cond" truecount="2" falsecount="0"/>
+      <line num="12" count="6" type="stmt"/>
+      <line num="16" count="9" type="stmt"/>
+      <line num="17" count="9" type="stmt"/>
+      <line num="18" count="9" type="stmt"/>
+      <line num="21" count="1" type="stmt"/>
+    </file>
+  </project>
+</coverage>

@@ -30,8 +30,6 @@ function focusFunction(event) {
 }
 
 function fillResponseCard(res, result, type) {
-
-  console.log("here")
   res === 'url'
     ? (  responseUrl.innerHTML = '',
       responseUrl.href = '',

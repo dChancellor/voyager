@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;500;800&display=swap');
+
+html,
+body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background-color: #13132c;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body,
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+label {
+  display: block;
+}
+
+input,
+button,
+select,
+textarea {
+  font-family: 'Poppins', sans-serif;
+  font-size: inherit;
+  box-sizing: border-box;
+}
+
+button {
+  outline: none;
+  all: revert;
+  border: none;
+}
+#sketch-container {
+  display: block;
+  position: absolute;
+  bottom: 0px;
+  z-index: -99;
+}
