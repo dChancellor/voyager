@@ -1,5 +1,5 @@
-const { databases } = require('../lib/config');
-const Database = require('../lib/database');
+const { databases } = require('../util/config');
+const Database = require('../util/database');
 
 describe.only('test the Database class architecture', () => {
   let db = new Database(databases.test.uri);

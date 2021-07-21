@@ -1,6 +1,6 @@
 require('dotenv').config();
 const yup = require('yup');
-const Database = require('../lib/database');
+const Database = require('../util/database');
 
 const environment = process.env.NODE_ENV;
 

@@ -10,7 +10,7 @@ const slowDown = require('express-slow-down');
 
 const auth = require('./middlewares/auth');
 const errors = require('./middlewares/error');
-const { cookieKey } = require('./lib/config');
+const { cookieKey } = require('./util/config');
 
 const app = express();
 const router = require('./router/router');

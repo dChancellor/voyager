@@ -1,6 +1,6 @@
-const { databases } = require('../lib/config');
-const { db } = require('../lib/config');
-const { schemaValidation } = require('../lib/helpers');
+const { databases } = require('../util/config');
+const { db } = require('../util/config');
+const { schemaValidation } = require('../util/helpers');
 
 describe('test the plumbing of the url and slug interactions', () => {
   let mockSlug = 'goog';

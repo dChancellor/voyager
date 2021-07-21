@@ -3,7 +3,7 @@ const router = Router();
 
 const passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
-const { db, googleAuthStrategy } = require('../lib/config');
+const { db, googleAuthStrategy } = require('../util/config');
 
 require('dotenv').config();
 

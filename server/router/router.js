@@ -1,8 +1,8 @@
 const { Router } = require('express');
 const router = Router();
 
-const { db, client } = require('../lib/config');
-const { schemaValidation } = require('../lib/helpers');
+const { db, client } = require('../util/config');
+const { schemaValidation } = require('../util/helpers');
 const auth = require('../middlewares/auth');
 const rateLimit = require('express-rate-limit');
 const slowDown = require('express-slow-down');

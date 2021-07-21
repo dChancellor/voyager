@@ -1,4 +1,4 @@
-const { paths, environment } = require('../lib/config');
+const { paths, environment } = require('../util/config');
 
 function notFound(req, res, next) {
   const error = new Error(`Not found - ${req.originalUrl}`);
