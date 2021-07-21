@@ -6,7 +6,6 @@ const { schemaValidation } = require('../lib/helpers');
 const auth = require('../middlewares/auth');
 const rateLimit = require('express-rate-limit');
 const slowDown = require('express-slow-down');
-
 router.use('/oauth', auth);
 
 router.use(
@@ -53,7 +52,8 @@ router.get('/:id', async (req, res) => {
   return res.status(404).send('Slug was not Found');
 });
 
-router.get('/', async (_, res) => {
+router.get('/', async (req, res) => {
+  console.log(req.user);
   res.send({ message: '🎂' });
 });
 

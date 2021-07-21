@@ -1,11 +1,12 @@
 const { databases } = require('../lib/config');
 const Database = require('../lib/database');
 
-describe('test the Database class architecture', () => {
+describe.only('test the Database class architecture', () => {
   let db = new Database(databases.test.uri);
   const mockDatabase = 'ifYouSeeThisSomethingWentHorriblyWrong';
   const mockCollection = 'ifYouSeeThisSomethingWentHorriblyWrong';
-  const mockUser = { _id: 'some-user-id', name: 'John' };
+  const mockUser = { name: 'George Washington', id: '1' };
+  const mockSecondUser = { name: 'Plato', id: '22523' };
 
   beforeAll(async () => {
     await db.connect(mockDatabase);
@@ -35,11 +36,31 @@ describe('test the Database class architecture', () => {
     expect(listOfCollections.length).toBe(2);
   });
 
-  it('should insert a user into the collection and then retrieve it', async () => {
-    let { insertedCount } = await db.addUser(mockUser);
-    let retrievedUser = await db.getUserById(mockUser._id);
+  it('should insert a user into the collection', async () => {
+    let user = await db.addUser(mockUser);
+    expect(user.insertedCount).toEqual(1);
+  });
+
+  it('should fail to insert a duplicate user into the collection and log the error', async () => {
+    let { message } = await db.addUser(mockUser);
+    expect(message).toBeTruthy();
+  });
+
+  it('should retrieve a user from the collection by db _id', async () => {
+    let { insertedId } = await db.addUser(mockSecondUser);
+    let retrievedUser = await db.getUserById(insertedId);
+    expect(retrievedUser.id).toEqual(mockSecondUser.id);
+  });
+
+  it('should retrieve a user from the collection by google id', async () => {
+    let retrievedUser = await db.getUserByGoogleId(mockUser.id);
     expect(retrievedUser).toEqual(mockUser);
-    expect(insertedCount).toEqual(1);
+  });
+
+  it('should detect that attempted user auth is not found in database and log that request', async () => {
+    let retrievedUser = await db.getUserByGoogleId('this-does-not-exist');
+    let response = !retrievedUser ? await db.addFailedLogin({ id: 'this-user-did-not-exist' }) : null;
+    expect(response).toBeTruthy();
   });
 
   it('should delete a user from the collection and retrieve null', async () => {
@@ -47,12 +68,14 @@ describe('test the Database class architecture', () => {
     let retrievedUser = await db.getUserById(mockUser._id);
     expect(deletedCount).toBe(1);
     expect(retrievedUser).toBeNull();
+    let { insertedCount } = await db.addUser(mockUser);
   });
 
   it('should delete a collection from the test database', async () => {
+    let originalListOfCollections = await db.listAllCollections();
     await db.deleteCollection(mockCollection);
     let listOfCollections = await db.listAllCollections();
-    expect(listOfCollections.length).toBe(1);
+    expect(listOfCollections.length).toBe(originalListOfCollections.length - 1);
   });
 
   it('should delete the test database', async () => {

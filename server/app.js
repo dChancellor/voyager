@@ -1,4 +1,5 @@
-const { cookieKey } = require('./lib/config');
+const path = require('path');
+const rfs = require('rotating-file-stream');
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
@@ -9,15 +10,19 @@ const slowDown = require('express-slow-down');
 
 const auth = require('./middlewares/auth');
 const errors = require('./middlewares/error');
+const { cookieKey } = require('./lib/config');
 
 const app = express();
 const router = require('./router/router');
 
 app.use(helmet());
-app.use(morgan('tiny'));
-app.use(express.json());
+var accessLogStream = rfs.createStream('access.log', {
+  interval: '1d', // rotate daily
+  path: path.join(__dirname, 'log'),
+});
+app.use(morgan('combined', { stream: accessLogStream }));
 
-// Do I need this?
+app.use(express.json());
 app.set('trust proxy');
 app.use(
   session({

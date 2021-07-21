@@ -13,6 +13,7 @@ describe('test the plumbing of the url and slug interactions', () => {
 
   afterAll(async () => {
     await db.clearCollection('urls');
+    await db.clearCollection('errors');
     await db.createNewSlug(mockSlug, mockUrl);
     await db.disconnect();
   });
@@ -41,7 +42,7 @@ describe('test the plumbing of the url and slug interactions', () => {
   });
 
   it('will retrieve a url from a slug', async () => {
-    await db.createNewSlug(mockSlug, mockUrl);
+    let create = await db.createNewSlug(mockSlug, mockUrl);
     let { url } = await db.getUrlFromSlug(mockSlug);
     expect(url).toEqual(mockUrl);
   });

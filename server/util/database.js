@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 
 class Database {
   constructor(uri) {
@@ -13,7 +13,6 @@ class Database {
       useUnifiedTopology: true,
     });
     this.db = await this.connection.db(databaseName);
-    console.log(`Connected to database: ${databaseName}`);
     return this.connection;
   }
 
@@ -49,9 +48,16 @@ class Database {
   }
   async addUser(user) {
     const users = this.db.collection('users');
-    return await users.insertOne(user);
+    return await users
+      .insertOne(user)
+      .then((res) => res)
+      .catch((err) => this.errorLogger(err));
   }
   async getUserById(id) {
+    const users = this.db.collection('users');
+    return users.findOne(ObjectId(id));
+  }
+  async getUserByGoogleId(id) {
     const users = this.db.collection('users');
     return await users.findOne({ id });
   }
@@ -65,7 +71,10 @@ class Database {
   }
   async createNewSlug(slug, url) {
     const urls = this.db.collection('urls');
-    return await urls.insertOne({ slug, url });
+    return urls
+      .insertOne({ slug, url })
+      .then((res) => res)
+      .catch((err) => this.errorLogger(err));
   }
   async getUrlFromSlug(slug) {
     const urls = this.db.collection('urls');
@@ -75,6 +84,11 @@ class Database {
   async getSlugsFromUrl(url) {
     const urls = this.db.collection('urls');
     return urls.find({ url }).toArray();
+  }
+  async errorLogger(error) {
+    const errors = this.db.collection('errors');
+    errors.insertOne({ error, dateTime: new Date() });
+    return { message: `Error code ${error.code} was logged` };
   }
 }
 
