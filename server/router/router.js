@@ -4,10 +4,6 @@ const router = Router();
 const { db, client } = require('../util/config');
 const { cleanInputs, stripsWebAddress } = require('../util/helpers');
 
-router.get('/serenity', (req, res) => {
-  res.status(200).send({ message: 'You have found peace' });
-});
-
 router.use(async (req, res, next) => {
   await db.connect();
   next();

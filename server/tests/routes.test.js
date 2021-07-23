@@ -20,14 +20,6 @@ describe('test unauthorized route pathing', () => {
     request(app).get('/').expect(200, done);
   });
 
-  it('finds peace', (done) => {
-    request(app)
-      .get('/serenity')
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .expect({ message: 'You have found peace' }, done);
-  });
-
   it('returns a redirect to the url found with given slug', async (done) => {
     await db.createNewSlug('goog', 'google.com');
     request(app).get('/goog').expect(302, done);
