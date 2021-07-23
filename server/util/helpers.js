@@ -18,4 +18,17 @@ function stripsWebAddress(url) {
   return url;
 }
 
-module.exports = { schemaValidation };
+async function isUserAuthorized(_, __, ___, profile, done) {
+  let user = await db.getUserByGoogleId(profile.id);
+  if (user) return done(null, user);
+  const failedUser = {
+    id: profile.id,
+    displayName: profile.displayName,
+    email: profile.emails[0].value,
+  };
+  await db.addFailedLogin(failedUser);
+  return done(null, false);
+}
+
+
+module.exports = { schemaValidation, isUserAuthorized };

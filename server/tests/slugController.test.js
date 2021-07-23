@@ -2,7 +2,7 @@ const { databases } = require('../util/config');
 const { db } = require('../util/config');
 const { schemaValidation } = require('../util/helpers');
 
-describe('test the plumbing of the url and slug interactions', () => {
+describe.skip('test the plumbing of the url and slug interactions', () => {
   let mockSlug = 'goog';
   let mockUrl = 'https://www.google.com/test';
   let mockIncorrectSlug = 'g';
@@ -54,6 +54,7 @@ describe('test the plumbing of the url and slug interactions', () => {
     expect(Array.isArray(slugs)).toBeTruthy();
     expect(doesExist).toBeTruthy();
   });
+  
   it('returns a web address stripped of http and www', async () => {
     let { url } = await schemaValidation(mockSlug, mockUrl);
     expect(url).toEqual('google.com/test');

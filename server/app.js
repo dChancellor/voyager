@@ -8,9 +8,9 @@ const session = require('express-session');
 const rateLimit = require('express-rate-limit');
 const slowDown = require('express-slow-down');
 
-const auth = require('./middlewares/auth');
 const errors = require('./middlewares/error');
-const { cookieKey } = require('./util/config');
+const { cookieKey, environment } = require('./util/config');
+const auth = environment === 'test' ? require('./middlewares/mockAuth') : require('./middlewares/auth');
 
 const app = express();
 const router = require('./router/router');
@@ -37,6 +37,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use('/failedLogin', (req, res) => res.status(401).json({ message: 'Authentication failed.' }));
 app.use('/oauth', auth);
 
 app.use(
@@ -45,10 +46,8 @@ app.use(
   rateLimit({ windowMs: 30 * 1000, max: 5 }),
   function (req, res, next) {
     if (req.user) {
-      console.log('USER FOUND');
       next();
     } else {
-      console.log('NO USER FOUND');
       res.redirect('/oauth/google');
     }
   },

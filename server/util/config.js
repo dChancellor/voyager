@@ -6,6 +6,7 @@ const environment = process.env.NODE_ENV;
 
 const hostname = process.env.HOST;
 const port = process.env.PORT;
+const client = process.env.CLIENT;
 const cookieKey = process.env.COOKIE_KEY;
 
 const databases = {
@@ -39,6 +40,14 @@ const databases = {
   },
 };
 
+const seedUser = {
+  id: process.env.SEED_GOOGLE_ID,
+  displayName: process.env.SEED_USER,
+  email: process.env.SEED_EMAIL,
+};
+
+const collectionsHash = { users: 'users', failedRequests: 'failedRequests', urls: 'urls', errors: 'errors' };
+
 const googleAuthStrategy = {
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -59,6 +68,17 @@ const schema = yup.object().shape({
   url: yup.string().matches(validUrlRegex, 'URL is not valid').required(),
 });
 
-let db = new Database(databases[environment].uri);
+let db = new Database(databases[environment].uri, collectionsHash);
 
-module.exports = { cookieKey, db, databases, schema, hostname, port, environment, googleAuthStrategy };
+module.exports = {
+  cookieKey,
+  db,
+  databases,
+  schema,
+  hostname,
+  port,
+  environment,
+  googleAuthStrategy,
+  collectionsHash,
+  seedUser,
+};

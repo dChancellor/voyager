@@ -1,10 +1,20 @@
 const { MongoClient, ObjectId } = require('mongodb');
 
 class Database {
-  constructor(uri) {
+  constructor(uri, collectionsHash) {
     this.uri = uri;
+    this.collectionsHash = collectionsHash || {};
+    this.collectionsArray = collectionsHash ? Object.values(collectionsHash) : [];
     this.connection;
     this.db;
+  }
+
+  async setup(databaseName) {
+    await this.connect(databaseName);
+    await Promise.all(this.collectionsArray.map(async (collection) => await this.createCollection(collection)));
+    await this.listAllCollections();
+    await this.disconnect();
+    return this;
   }
 
   async connect(databaseName) {
@@ -13,7 +23,6 @@ class Database {
       useUnifiedTopology: true,
     });
     this.db = await this.connection.db(databaseName);
-    return this.connection;
   }
 
   async disconnect() {
@@ -32,10 +41,13 @@ class Database {
     await this.connection.db(databaseName).dropDatabase();
   }
   async listAllDatabases() {
-    return await this.db.admin().listDatabases();
+    return this.db.admin().listDatabases();
   }
   async createCollection(collectionName) {
-    return await this.db.createCollection(collectionName);
+    return await this.db
+      .createCollection(collectionName)
+      .then((res) => res)
+      .catch((err) => this.errorLogger(err));
   }
   async clearCollection(collectionName) {
     return await this.db.collection(collectionName).deleteMany({});
@@ -44,8 +56,9 @@ class Database {
     return await this.db.dropCollection(collectionName);
   }
   async listAllCollections() {
-    return await this.db.listCollections().toArray();
+    return this.db.listCollections().toArray();
   }
+
   async addUser(user) {
     const users = this.db.collection('users');
     return await users
