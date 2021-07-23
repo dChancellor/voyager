@@ -16,7 +16,6 @@ passport.use(
       if (name === user.name) {
         done(null, user);
       } else {
-        console.log('incorrect user');
         done(null, false);
       }
     },

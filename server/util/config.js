@@ -17,7 +17,7 @@ const databases = {
     database: process.env.JEST_MONGO_DB,
     uri: `mongodb://${process.env.JEST_MONGO_USERNAME}:${encodeURIComponent(process.env.JEST_MONGO_PASSWORD)}@${
       process.env.JEST_MONGO_HOST
-    }:${process.env.JEST_MONGO_PORT}`,
+    }:${process.env.JEST_MONGO_PORT}/${process.env.JEST_MONGO_DB}?authSource=admin`,
   },
   development: {
     host: process.env.DEV_MONGO_HOST,
@@ -58,23 +58,33 @@ const googleAuthStrategy = {
 const validUrlRegex =
   /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm;
 
-const schema = yup.object().shape({
-  slug: yup
-    .string()
-    .trim()
-    .matches(/^[a-zA-Z0-9]+[a-zA-Z0-9-._]*[a-zA-Z0-9]+$/i)
-    .min(2)
-    .max(5),
-  url: yup.string().matches(validUrlRegex, 'URL is not valid').required(),
-});
+const validateSchema = async (input) => {
+  let result = await yup
+    .object()
+    .shape({
+      slug: yup
+        .string()
+        .trim()
+        .matches(/^[a-zA-Z0-9]+[a-zA-Z0-9-._]*[a-zA-Z0-9]+$/i)
+        .min(2)
+        .max(5)
+        .nullable(),
+      url: yup.string().matches(validUrlRegex, 'URL is not valid').required(),
+    })
+    .validate(input)
+    .catch((err) => err);
+  if (result.errors) return { valid: false, error: result.errors[0] };
+  return { valid: true, error: null };
+};
 
 let db = new Database(databases[environment].uri, collectionsHash);
 
 module.exports = {
+  client,
   cookieKey,
   db,
   databases,
-  schema,
+  validateSchema,
   hostname,
   port,
   environment,

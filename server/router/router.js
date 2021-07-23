@@ -2,20 +2,29 @@ const { Router } = require('express');
 const router = Router();
 
 const { db, client } = require('../util/config');
-const { schemaValidation } = require('../util/helpers');
+const { cleanInputs, stripsWebAddress } = require('../util/helpers');
 
-router.post('/auth/newUser', async (req, res) => {
-  const { ops } = await db.addUser(req.body);
-  if (ops) return res.send(ops[0]);
-  res.status(500).send({ message: 'Error creating user 🙀' });
+router.get('/serenity', (req, res) => {
+  res.status(200).send({ message: 'You have found peace' });
 });
 
-router.post('/auth/newSlug', async (req, res) => {
-  if (req.body.url === client) return res.status(500).send({ message: 'No recursion 🤚' });
-  let { slug, url, forcedToRegenerate } = await schemaValidation(req.body.slug, req.body.url);
+router.use(async (req, res, next) => {
+  await db.connect();
+  next();
+});
+
+router.post('/auth/newUser', async (req, res, next) => {
+  const { ops } = await db.addUser(req.body);
+  if (ops) return res.send(ops[0]);
+  return next(new Error('Error creating user 🙀'));
+});
+
+router.post('/auth/newSlug', async (req, res, next) => {
+  if (req.body.url === client) return next(new Error('No recursion 🤚'));
+  let { slug, url, forcedToRegenerate, error } = await cleanInputs(req.body.slug, req.body.url);
+  if (error) return res.status(404).send({ message: error });
   let { ops } = await db.createNewSlug(slug, url);
-  if (ops) return res.status(200).send({ ...ops[0], forcedToRegenerate });
-  res.status(404).send({ message: 'Something went wrong' });
+  return res.status(200).send({ ...ops[0], forcedToRegenerate });
 });
 
 router.get('/auth/loggedIn', (req, res) => {
@@ -23,7 +32,8 @@ router.get('/auth/loggedIn', (req, res) => {
 });
 
 router.get('/url', async (req, res) => {
-  const { url } = req.body;
+  let { url } = req.body;
+  url = stripsWebAddress(url);
   const result = await db.getSlugsFromUrl(url);
   if (result.length > 0) return res.status(200).send(result);
   res.status(404).send({ message: 'Url not found' });

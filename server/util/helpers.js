@@ -1,14 +1,15 @@
 const { nanoid } = require('nanoid');
-const { schema } = require('./config');
+const { validateSchema } = require('./config');
 const { db } = require('./config');
 
-async function schemaValidation(slug, url, forcedToRegenerate = false) {
+async function cleanInputs(slug, url, forcedToRegenerate = false) {
   url = stripsWebAddress(url);
-  let valid = await schema.isValid({ slug, url });
+  let { valid, error } = await validateSchema({ slug, url });
+  if (error) return { error };
   if (!slug || !valid) slug = nanoid(5);
   slug = slug.toLowerCase();
   let doesAlreadyExist = await db.getUrlFromSlug(slug);
-  if (doesAlreadyExist) return schemaValidation(undefined, url, true);
+  if (doesAlreadyExist) return cleanInputs(undefined, url, true);
   return { slug, url, forcedToRegenerate };
 }
 
@@ -30,5 +31,4 @@ async function isUserAuthorized(_, __, ___, profile, done) {
   return done(null, false);
 }
 
-
-module.exports = { schemaValidation, isUserAuthorized };
+module.exports = { cleanInputs, isUserAuthorized, stripsWebAddress };

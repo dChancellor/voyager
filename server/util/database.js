@@ -7,6 +7,7 @@ class Database {
     this.collectionsArray = collectionsHash ? Object.values(collectionsHash) : [];
     this.connection;
     this.db;
+    this.currentStatus = false;
   }
 
   async setup(databaseName) {
@@ -23,6 +24,7 @@ class Database {
       useUnifiedTopology: true,
     });
     this.db = await this.connection.db(databaseName);
+    this.currentStatus = true;
   }
 
   async disconnect() {
@@ -72,7 +74,7 @@ class Database {
   }
   async getUserByGoogleId(id) {
     const users = this.db.collection('users');
-    return await users.findOne({ id });
+    return users.findOne({ id });
   }
   async addFailedLogin(userObject) {
     const failedRequests = this.db.collection('failedRequests');
