@@ -12,24 +12,19 @@ passport.use(new GoogleStrategy(googleAuthStrategy, isUserAuthorized));
 passport.serializeUser((user, done) => done(null, user._id));
 
 passport.deserializeUser(async (_id, done) => {
-  db.getUserById(_id).then(({ id }) => {
-    done(null, id);
+  db.getUserById(_id).then((user) => {
+    done(null, user.displayName);
   });
 });
 
 router.get(
   '/google/callback',
   passport.authenticate('google', {
-    successRedirect: '/auth/loggedIn',
+    successRedirect: client,
     failureRedirect: '/oauth/google',
   }),
 );
 
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email', 'openid'] }));
-
-router.get('/logout', (req, res) => {
-  req.logout();
-  res.redirect(client);
-});
 
 module.exports = router;

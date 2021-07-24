@@ -9,7 +9,7 @@ const rateLimit = require('express-rate-limit');
 const slowDown = require('express-slow-down');
 
 const errors = require('./middlewares/error');
-const { cookieKey, environment } = require('./util/config');
+const { db, cookieKey, environment, client } = require('./util/config');
 
 const app = express();
 const router = require('./router/router');
@@ -21,6 +21,15 @@ var accessLogStream = rfs.createStream('access.log', {
   path: path.join(__dirname, 'log'),
 });
 app.use(morgan('combined', { stream: accessLogStream }));
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Origin', client);
+  // res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,POST');
+  res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+  next();
+});
 
 app.set('trust proxy');
 app.use(
@@ -35,9 +44,12 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// const auth = environment === 'test' ? require('./tests/mockAuth') : require('./middlewares/auth');
-const auth = require('./tests/mockAuth');
-
+const auth = environment === 'test' ? require('./tests/mockAuth') : require('./middlewares/auth');
+// const auth = require('./tests/mockAuth');
+app.use(async (req, res, next) => {
+  await db.connect();
+  next();
+});
 app.use('/oauth', auth);
 app.use(
   '/auth',
@@ -51,6 +63,16 @@ app.use(
     }
   },
 );
+app.get('/user', (req, res) => {
+  res.locals = { name: req.user };
+  res.status(200).send(res.locals);
+});
+
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect(client);
+});
+
 app.use('/failedLogin', (req, res) => {
   res.status(401).json({ message: 'Authentication failed.' });
 });

@@ -98,7 +98,7 @@ class Database {
   }
   async getSlugsFromUrl(url) {
     const urls = this.db.collection('urls');
-    return urls.find({ url }).toArray();
+    return urls.find({ url }).project({ _id: 0, slug: 1 }).toArray();
   }
   async errorLogger(error) {
     const errors = this.db.collection('errors');

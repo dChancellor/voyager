@@ -4,11 +4,6 @@ const router = Router();
 const { db, client } = require('../util/config');
 const { cleanInputs, stripsWebAddress } = require('../util/helpers');
 
-router.use(async (req, res, next) => {
-  await db.connect();
-  next();
-});
-
 router.post('/auth/newUser', async (req, res, next) => {
   const { ops } = await db.addUser(req.body);
   if (ops) return res.send(ops[0]);
@@ -23,13 +18,16 @@ router.post('/auth/newSlug', async (req, res, next) => {
   return res.status(200).send({ ...ops[0], forcedToRegenerate });
 });
 
-router.get('/auth/loggedIn', (req, res) => {
-  res.status(200).send({ message: 'It works!' });
+router.get('/auth/user', (req, res) => {
+  res.locals = { name: req.user };
+  res.status(200).send(res.locals);
 });
 
-router.get('/url', async (req, res) => {
+router.post('/url', async (req, res) => {
+  console.log(req.body);
   let { url } = req.body;
   url = stripsWebAddress(url);
+  console.log(url);
   const result = await db.getSlugsFromUrl(url);
   if (result.length > 0) return res.status(200).send(result);
   res.status(404).send({ message: 'Url not found' });
