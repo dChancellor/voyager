@@ -33,18 +33,18 @@ app.use(
     secret: cookieKey,
     resave: true,
     saveUninitialized: true,
-    cookie: { sameSite: 'none', secure: false, httpOnly: false, maxAge: 24 * 60 * 60 * 1000 }, // 1 Day
+    cookie: { sameSite: 'lax', secure: false, httpOnly: false, maxAge: 24 * 60 * 60 * 1000 }, // 1 Day
   }),
 );
 app.use(passport.initialize());
 app.use(passport.session());
 
-// const auth = environment === 'test' ? require('./tests/mockAuth') : require('./middlewares/auth');
-const auth = require('./tests/mockAuth');
-// app.use(async (req, res, next) => {
-//   await db.connect();
-//   next();
-// });
+const auth = environment === 'test' ? require('./tests/mockAuth') : require('./middlewares/auth');
+// const auth = require('./tests/mockAuth');
+app.use(async (req, res, next) => {
+  await db.connect();
+  next();
+});
 app.use('/oauth', auth);
 app.use(
   '/auth',

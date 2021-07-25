@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   const dispatch = createEventDispatcher();
-  export let placeholder = 'www.google.com';
+  export let placeholder;
   export let required;
   export let value;
   export let error;
@@ -10,6 +10,7 @@
 </script>
 
 <p
+  class:error
   class:required
   class="editable field"
   on:blur={() => dispatch('save', textContent)}
@@ -18,8 +19,14 @@
   bind:textContent
   {placeholder}
 />
+{#if error}
+  <span class="required-message">required!</span>
+{/if}
 
 <style>
+  .required-message {
+    color: #863737;
+  }
   .field {
     padding: 0.4rem 1rem 0.4rem 1rem;
     border-radius: 20px;
@@ -31,9 +38,6 @@
     text-align: center;
     box-shadow: inset 2px 2px 4px 4px rgba(0, 0, 0, 0.1);
     font-size: 1.4rem;
-  }
-  .field:not(.header > .field) {
-    flex-grow: 2;
   }
   .field:focus:empty:before {
     content: attr(placeholder);
@@ -55,7 +59,7 @@
       background-color: rgb(27, 32, 90, 0.85);
     }
   }
-  .error .required {
-    box-shadow: inset 2px 2px 4px 4px rgba(146, 28, 28, 0.1);
+  .error.required {
+    box-shadow: inset 0px 0px 4px 2px rgba(121, 0, 0, 0.692);
   }
 </style>

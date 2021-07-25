@@ -11,7 +11,7 @@
   let serenity = false;
 
   let search = '';
-  let error = false;
+  let missingRequirement = false;
   let errorMessage;
 
   let retrievingData = false;
@@ -31,10 +31,8 @@
 
   let submitSearch = async () => {
     errorMessage = null;
-    if (search.length === 0) {
-      error = true;
-      return [];
-    }
+    if (search.length === 0) return missingRequirement = true;
+    missingRequirement = false;
     retrievingData = true;
     [slugs, error] = await getSlugs(search);
     if (error) errorMessage = error;
@@ -50,16 +48,16 @@
     <h1>Voyage Across the Web</h1>
     <button class="login" on:click={() => (location.href = `${server}/auth`)}>Login with Google</button>
     <div class="search-container">
-      <p class="search-label">or search by domain</p>
+      <p class="search-label">or search for existing slugs</p>
       <TextField
         value={search}
         on:save={({ detail: content }) => (search = content)}
         required={true}
-        {error}
+        error={missingRequirement}
         placeholder={'www.google.com'}
       />
     </div>
-    <button class="submit" on:click={() => (slugs = submitSearch())}>Submit</button>
+    <button class="submit" on:click={() => submitSearch()}>Submit</button>
     {#if retrievingData}
       <div class="loader" />
     {/if}
