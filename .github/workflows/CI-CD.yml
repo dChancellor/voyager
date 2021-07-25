@@ -20,7 +20,7 @@ jobs:
         run: npm ci
         working-directory: ./server
       - name: Run Jest test suite
-        run: npm test
+        run: npm run test
         working-directory: ./server
 
   # push_to_registries:
