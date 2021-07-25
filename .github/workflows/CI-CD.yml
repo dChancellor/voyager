@@ -33,7 +33,8 @@ jobs:
       - name: Run Jest test suite
         run: npm run test --forceExit
         working-directory: ./server
-
+      - name: Codecov
+        uses: codecov/codecov-action@v2.0.2
   # push_to_registries:
   #   name: Push Docker image to multiple registries
   #   runs-on: ubuntu-latest
