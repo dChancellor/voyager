@@ -11,6 +11,17 @@ jobs:
   test:
     name: Testing code before deployment
     runs-on: ubuntu-latest
+    env:
+      CLIENT: ${{secrets.CLIENT}}
+      GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
+      GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+      GOOGLE_CALLBACK_URL: ${{secrets.GOOGLE_CALLBACK_URL}}
+      COOKIE_KEY: ${{secrets.COOKIE_KEY}}
+      JEST_MONGO_PASSWORD: ${{secrets.JEST_MONGO_PASSWORD}}
+      JEST_MONGO_USERNAME: ${{secrets.JEST_MONGO_USERNAME}}
+      JEST_MONGO_HOST: ${{secrets.JEST_MONGO_HOST}}
+      JEST_MONGO_PORT: ${{secrets.JEST_MONGO_PORT}}
+      JEST_MONGO_DB: ${{secrets.JEST_MONGO_DB}}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2

@@ -40,12 +40,6 @@ const databases = {
   },
 };
 
-const seedUser = {
-  id: process.env.SEED_GOOGLE_ID,
-  displayName: process.env.SEED_USER,
-  email: process.env.SEED_EMAIL,
-};
-
 const collectionsHash = { users: 'users', failedRequests: 'failedRequests', urls: 'urls', errors: 'errors' };
 
 const googleAuthStrategy = {
