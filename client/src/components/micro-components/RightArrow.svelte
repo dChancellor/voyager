@@ -16,7 +16,6 @@
 <style>
   div {
     width: 4.5rem;
-    height: 100%;
   }
   .arrow {
     fill: rgb(54, 108, 129);

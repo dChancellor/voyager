@@ -3,6 +3,7 @@ const rfs = require('rotating-file-stream');
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
+const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
 const rateLimit = require('express-rate-limit');
@@ -15,21 +16,15 @@ const app = express();
 const router = require('./router/router');
 
 app.use(express.json());
+
 app.use(helmet());
+app.use(cors({credentials: true, origin: 'http://localhost:5000'}));
+
 var accessLogStream = rfs.createStream('access.log', {
   interval: '1d', // rotate daily
   path: path.join(__dirname, 'log'),
 });
 app.use(morgan('combined', { stream: accessLogStream }));
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Credentials', true);
-  res.header('Access-Control-Allow-Origin', client);
-  // res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,POST');
-  res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
-  next();
-});
 
 app.set('trust proxy');
 app.use(
@@ -38,7 +33,7 @@ app.use(
     secret: cookieKey,
     resave: true,
     saveUninitialized: true,
-    cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }, // 1 Day
+    cookie: { sameSite: 'none', secure: false, httpOnly: false, maxAge: 24 * 60 * 60 * 1000 }, // 1 Day
   }),
 );
 app.use(passport.initialize());
@@ -63,9 +58,11 @@ app.use(
     }
   },
 );
+
 app.get('/user', (req, res) => {
-  res.locals = { name: req.user };
-  res.status(200).send(res.locals);
+  res.locals = req.user;
+  console.log(res.locals);
+  res.status(200).send({ user: res.locals });
 });
 
 app.get('/logout', (req, res) => {

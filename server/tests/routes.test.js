@@ -13,7 +13,7 @@ describe('test unauthorized route pathing', () => {
   });
 
   afterAll(async () => {
-    await db.deleteDatabase('routes-test');
+    // await db.deleteDatabase('routes-test');
     await db.disconnect();
   });
   it('responds with 200', (done) => {
@@ -32,7 +32,7 @@ describe('test unauthorized route pathing', () => {
   it('returns a list of slugs from a given url', async (done) => {
     await db.createNewSlug('goog', 'google.com');
     request(app)
-      .get('/url')
+      .post('/url')
       .send({ url: 'https://www.google.com' })
       .expect(200)
       .expect('Content-Type', /json/)
@@ -46,7 +46,7 @@ describe('test unauthorized route pathing', () => {
 
   it('returns a 404 with no slugs found for given url', async (done) => {
     request(app)
-      .get('/url')
+      .post('/url')
       .send({ url: 'https://www.fakeurl.com' })
       .expect(404)
       .expect('Content-Type', /json/)
@@ -81,6 +81,7 @@ describe('test unauthorized route pathing', () => {
   });
 
   describe('handles adding the cookie to the superagent and all authorized routing', () => {
+    const dbUser = { name: 'Authorized User', id: '1', _id: '1' };
     const authorizedUser = { user: { name: 'Authorized User' } };
     const newUser = { id: '123', name: 'J.R.R.', email: 'frodoisunderrated@fake.com' };
 
@@ -115,16 +116,19 @@ describe('test unauthorized route pathing', () => {
             .get('/oauth/google')
             .send(authorizedUser)
             .expect(302)
-            .expect('Location', '/auth/loggedIn')
+            .expect('Location', '/user')
             .end((err) => {
               if (err) done(err);
-              agent.get('/auth/loggedIn').expect(200, done);
+              agent.get('/user').end((err, res) => {
+                if (err) done(err)(res.body).toEqual(dbUser);
+                done();
+              });
             });
         });
     });
 
     it('proves the superagent is maintaining cookie storage', (done) => {
-      agent.get('/auth/loggedIn').expect(200).expect('Content-Type', /json/).expect({ message: 'It works!' }, done);
+      agent.get('/user').expect(200).expect('Content-Type', /json/).expect(dbUser, done);
     });
 
     it('travels the newSlug route and successfully adds a randomized slug', (done) => {
@@ -206,6 +210,18 @@ describe('test unauthorized route pathing', () => {
     });
     it('travels the newUser route and attempts to add an already existing User', (done) => {
       agent.post('/auth/newUser').send(newUser).expect(500, done);
+    });
+
+    it('logs the superagent out', async (done) => {
+      await agent.get('/logout').expect(302);
+      agent
+        .get('/user')
+        .expect(200)
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.body).toEqual({});
+          return done();
+        });
     });
   });
 });

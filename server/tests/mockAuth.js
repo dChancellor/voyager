@@ -35,7 +35,7 @@ MockStrategy.setupSerializeAndDeserialize(
 router.get(
   '/google',
   passport.authenticate('mock', {
-    successRedirect: '/auth/loggedIn',
+    successRedirect: '/user',
     failureRedirect: '/failedLogin',
   }),
 );

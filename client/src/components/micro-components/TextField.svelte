@@ -1,12 +1,16 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   const dispatch = createEventDispatcher();
-  let textContent;
   export let placeholder = 'www.google.com';
+  export let required;
+  export let value;
+  export let error;
+  let textContent = value;
   $: empty = textContent === '' ? true : false;
 </script>
 
 <p
+  class:required
   class="editable field"
   on:blur={() => dispatch('save', textContent)}
   class:empty
@@ -50,5 +54,8 @@
     .field {
       background-color: rgb(27, 32, 90, 0.85);
     }
+  }
+  .error .required {
+    box-shadow: inset 2px 2px 4px 4px rgba(146, 28, 28, 0.1);
   }
 </style>

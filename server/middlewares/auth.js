@@ -9,11 +9,12 @@ const { isUserAuthorized } = require('../util/helpers');
 
 passport.use(new GoogleStrategy(googleAuthStrategy, isUserAuthorized));
 
-passport.serializeUser((user, done) => done(null, user._id));
+passport.serializeUser((user, done) => done(null, user));
 
-passport.deserializeUser(async (_id, done) => {
-  db.getUserById(_id).then((user) => {
-    done(null, user.displayName);
+passport.deserializeUser(async (user, done) => {
+  console.log(user._id);
+  db.getUserById(user._id).then((user) => {
+    done(null, user);
   });
 });
 

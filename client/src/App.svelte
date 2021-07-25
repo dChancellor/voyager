@@ -4,47 +4,40 @@
   import RightArrow from './components/micro-components/RightArrow.svelte';
   import TextField from './components/micro-components/TextField.svelte';
   import Authorized from './views/Authorized.svelte';
+  import { getSlugs, getUser, server } from './helpers/fetch';
 
   let authenticating = true;
   let user;
   let serenity = false;
 
   let search = '';
+  let error = false;
+  let errorMessage;
 
   let retrievingData = false;
-  let slugs = [];
+  let slugs = [{ slug: '' }];
   let slugIndex = 0;
   $: if (slugIndex < 0) {
-    slugIndex = 0;
-  }
-  $: if (slugIndex > slugs.length - 1) {
     slugIndex = slugs.length - 1;
   }
+  $: if (slugIndex > slugs.length - 1) {
+    slugIndex = 0;
+  }
 
-  $: console.log(slugs[0]?.slug);
   onMount(async () => {
-    user = await fetch('http://localhost:4000/user', {
-      credentials: 'include',
-    })
-      .then((res) => res.json())
-      .then((data) => data.name?.split(' ')[0])
-      .catch((err) => console.log(err));
+    user = await getUser();
     authenticating = false;
   });
 
   let submitSearch = async () => {
-    retrievingData = true;
-    if (search.length > 0) {
-      slugs = await fetch('http://localhost:4000/url', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url: search }),
-      })
-        .then((res) => res.json())
-        .then((data) => data);
+    errorMessage = null;
+    if (search.length === 0) {
+      error = true;
+      return [];
     }
+    retrievingData = true;
+    [slugs, error] = await getSlugs(search);
+    if (error) errorMessage = error;
     retrievingData = false;
   };
 </script>
@@ -55,21 +48,30 @@
     <Authorized {user} />
   {:else if !user && !authenticating && !serenity}
     <h1>Voyage Across the Web</h1>
-    <button class="login" on:click={() => (location.href = 'http://localhost:4000/auth')}>Login with Google</button>
+    <button class="login" on:click={() => (location.href = `${server}/auth`)}>Login with Google</button>
     <div class="search-container">
       <p class="search-label">or search by domain</p>
-      <TextField on:save={({ detail: content }) => (search = content)} placeholder={'www.google.com'} />
+      <TextField
+        value={search}
+        on:save={({ detail: content }) => (search = content)}
+        required={true}
+        {error}
+        placeholder={'www.google.com'}
+      />
     </div>
     <button class="submit" on:click={() => (slugs = submitSearch())}>Submit</button>
     {#if retrievingData}
       <div class="loader" />
     {/if}
-    {#if !retrievingData && slugs?.length > 0}
+    {#if !retrievingData && slugs[0].slug != ''}
       <div class="slugs-container">
         <LeftArrow on:decrement={() => (slugIndex -= 1)} />
-        <p class="results">{slugs[slugIndex]?.slug}</p>
+        <a href="{server}/{slugs[slugIndex].slug}" class="results">/{slugs[slugIndex].slug}</a>
         <RightArrow on:increment={() => (slugIndex += 1)} />
       </div>
+    {/if}
+    {#if errorMessage}
+      <p class="error">{errorMessage}</p>
     {/if}
   {/if}
 </main>
@@ -83,7 +85,10 @@
     align-items: center;
     gap: 2rem;
   }
-
+  .error {
+    color: rgba(255, 0, 0, 0.705);
+    font-size: 1.2rem;
+  }
   .peace {
     position: absolute;
     top: 0;
@@ -101,7 +106,7 @@
   }
   h1 {
     color: hsl(247, 100%, 99%);
-    font-size: clamp(7vw, 6vh, 8vw);
+    font-size: 6vh;
     text-align: center;
     margin-top: 25vh;
     font-family: 'Lobster', display;
@@ -175,5 +180,6 @@
     color: white;
     font-size: 2.5rem;
     text-align: center;
+    min-width: 10rem;
   }
 </style>

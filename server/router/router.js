@@ -18,16 +18,9 @@ router.post('/auth/newSlug', async (req, res, next) => {
   return res.status(200).send({ ...ops[0], forcedToRegenerate });
 });
 
-router.get('/auth/user', (req, res) => {
-  res.locals = { name: req.user };
-  res.status(200).send(res.locals);
-});
-
 router.post('/url', async (req, res) => {
-  console.log(req.body);
   let { url } = req.body;
   url = stripsWebAddress(url);
-  console.log(url);
   const result = await db.getSlugsFromUrl(url);
   if (result.length > 0) return res.status(200).send(result);
   res.status(404).send({ message: 'Url not found' });
@@ -36,7 +29,7 @@ router.post('/url', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { id: slug } = req.params;
   const result = await db.getUrlFromSlug(slug);
-  if (result) return res.redirect(result.url);
+  if (result) return res.redirect(`https://${result.url}`);
   return res.status(404).send('Slug was not Found');
 });
 
