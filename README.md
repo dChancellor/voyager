@@ -1,42 +1,41 @@
-<div style="display:flex; flex-flow:column; justify-content:center; align-items:center;">
-<br></br>
-<img style="border-radius:5px; margin-bottom:1rem;" src="./.readme-assets/header.gif">
-<h1 align="center">
-  Voyager - a full stack url shortener
+<div align="center">
+  <br></br>
+  <img style="border-radius:5px; margin-bottom:1rem;" src="./.readme-assets/header.gif">
+  <h1 align="center">
+    Voyager - a full stack url shortener
+    <br>
+  </h1>      
+
+  <p align="center">
+  A simple url shortener application with a Svelte and p5 front-end that you can stare at for hours. The post endpoints are protected by Google's OAuth, but anyone can access already created slugs.
+    <br>
+  <p>
+
+  <div style="display:flex; align-items:center; justify-content:center;">
+   <strong>CSS</strong>&nbsp;  <img src="./.readme-assets/css.png">&nbsp; &nbsp; <strong>Vanilla</strong> &nbsp; <img src="./.readme-assets/javascript.png"> &nbsp; &nbsp;  <strong>Svelte</strong> &nbsp; <img src="./.readme-assets/svelte.png"> &nbsp; &nbsp; <strong>NodeJS</strong> &nbsp; <img src="./.readme-assets/nodejs.png"> &nbsp; &nbsp; 
+  </div>
+
   <br>
-</h1>
+  <p align="display:flex; flex-flow:row nowrap; justify-content:center; align-items:center;">
+      <img src="https://img.shields.io/github/last-commit/dChancellor/url_shortener?style=flat-square" />
+    <a href='https://simple.wikipedia.org/wiki/MIT_License'>
+        <img src="https://img.shields.io/badge/license-MIT-lightgrey" />
+    </a>
+    <img src="https://img.shields.io/github/issues/dChancellor/url_shortener" />
+    <a href="https://codecov.io/gh/dChancellor/url_shortener">
+      <img src="https://codecov.io/gh/dChancellor/url_shortener/branch/master/graph/badge.svg?token=49KV7U5FO4"/>
+    </a>
+  </p>
 
-
-<p align="center">
-A simple url shortener application with a Svelte and p5 front-end that you can stare at for hours. The post endpoints are protected by Google's OAuth, but anyone can access already created slugs.
+  <p align="center">
+  <img src="/.readme-assets/front.png">
   <br>
-<p>
-
-<div style="display:flex; align-items:center; justify-content:center;">
- <strong>CSS</strong>&nbsp;  <img src="./.readme-assets/css.png">&nbsp; &nbsp; <strong>Vanilla</strong> &nbsp; <img src="./.readme-assets/javascript.png"> &nbsp; &nbsp;  <strong>Svelte</strong> &nbsp; <img src="./.readme-assets/svelte.png"> &nbsp; &nbsp; <strong>NodeJS</strong> &nbsp; <img src="./.readme-assets/nodejs.png"> &nbsp; &nbsp; 
-</div>
-
-<br>
-<p align="display:flex; flex-flow:row nowrap; justify-content:center; align-items:center;">
-    <img src="https://img.shields.io/github/last-commit/dChancellor/url_shortener?style=flat-square" />
-  <a href='https://simple.wikipedia.org/wiki/MIT_License'>
-      <img src="https://img.shields.io/badge/license-MIT-lightgrey" />
-  </a>
-  <img src="https://img.shields.io/github/issues/dChancellor/url_shortener" />
-  <a href="https://codecov.io/gh/dChancellor/url_shortener">
-    <img src="https://codecov.io/gh/dChancellor/url_shortener/branch/master/graph/badge.svg?token=49KV7U5FO4"/>
-  </a>
-</p>
-
-<p align="center">
-<img src="/.readme-assets/front.png">
-<br>
-refresh to see all 3 ship variations!
-</p>
-<br>
-<img src="./.readme-assets/tests.png">
-<br>
-Very proud to now include 100% Test Coverage with 100% passing tests
+  refresh to see all 3 ship variations!
+  </p>
+  <br>
+  <img src="./.readme-assets/tests.png">
+  <br>
+  Very proud to now include 100% Test Coverage with 100% passing tests
 </div>
 <br>
 
