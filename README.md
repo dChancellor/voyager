@@ -1,4 +1,4 @@
-
+[![codecov](https://codecov.io/gh/dChancellor/url_shortener/branch/master/graph/badge.svg?token=49KV7U5FO4)](https://codecov.io/gh/dChancellor/url_shortener)
 
 # URL Shortener
 
