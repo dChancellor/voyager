@@ -31,7 +31,7 @@ jobs:
         run: npm ci
         working-directory: ./server
       - name: Run Jest test suite
-        run: npm run test
+        run: npm run test --forceExit
         working-directory: ./server
 
   # push_to_registries:
