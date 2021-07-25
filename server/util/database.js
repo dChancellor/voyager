@@ -51,6 +51,9 @@ class Database {
       .then((res) => res)
       .catch((err) => this.errorLogger(err));
   }
+  async createUniqueKey(collectionName) {
+    return this.db.collection(collectionName).createIndex({ id: 1 }, { unique: true });
+  }
   async clearCollection(collectionName) {
     return await this.db.collection(collectionName).deleteMany({});
   }

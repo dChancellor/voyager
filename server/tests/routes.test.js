@@ -9,97 +9,82 @@ describe('test unauthorized route pathing', () => {
 
   beforeAll(async () => {
     await db.connect('routes-test');
-    await db.createNewSlug('goog', 'google.com');
+    await db.createUniqueKey('users');
   });
 
   afterAll(async () => {
     await db.deleteDatabase('routes-test');
     await db.disconnect();
   });
-  it('responds with 200', (done) => {
-    request(app).get('/').expect(200, done);
-  });
+  describe('unauthorized route testing', () => {
+    it('responds with 200', (done) => {
+      request(app).get('/').expect(200).end(done);
+    });
 
-  it('returns a redirect to the url found with given slug', async (done) => {
-    await db.createNewSlug('goog', 'google.com');
-    request(app).get('/goog').expect(302, done);
-  });
+    it('returns a redirect to the url found with given slug', async (done) => {
+      await db.createNewSlug('goog', 'google.com');
+      request(app).get('/goog').expect(302, done);
+    });
 
-  it('finds a no slug found 404 page', (done) => {
-    request(app).get('/no-slug').expect(404, done);
-  });
+    it('finds a no slug found 404 page', (done) => {
+      request(app).get('/no-slug').expect(404, done);
+    });
 
-  it('returns a list of slugs from a given url', async (done) => {
-    await db.createNewSlug('goog', 'google.com');
-    request(app)
-      .post('/url')
-      .send({ url: 'https://www.google.com' })
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end(async (err, res) => {
-        if (err) return done(err);
-        expect(res.body.length).toBeGreaterThanOrEqual(1);
-        expect(res.body[0].slug).toEqual('goog');
-        done();
-      });
-  });
+    it('returns a list of slugs from a given url', async (done) => {
+      await db.createNewSlug('goog', 'google.com');
+      request(app)
+        .post('/url')
+        .send({ url: 'https://www.google.com' })
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(async (err, res) => {
+          if (err) return done(err);
+          expect(res.body.length).toBeGreaterThanOrEqual(1);
+          expect(res.body[0].slug).toEqual('goog');
+          done();
+        });
+    });
 
-  it('returns a 404 with no slugs found for given url', async (done) => {
-    request(app)
-      .post('/url')
-      .send({ url: 'https://www.fakeurl.com' })
-      .expect(404)
-      .expect('Content-Type', /json/)
-      .expect({ message: 'Url not found' }, done);
-  });
+    it('returns a 404 with no slugs found for given url', async (done) => {
+      request(app)
+        .post('/url')
+        .send({ url: 'https://www.fakeurl.com' })
+        .expect(404)
+        .expect('Content-Type', /json/)
+        .expect({ message: 'Url not found' }, done);
+    });
 
-  it('returns a not-found error', (done) => {
-    request(app).get('/serenity/test').expect(404, done);
-  });
+    it('returns a not-found error', (done) => {
+      request(app).get('/serenity/test').expect(404, done);
+    });
 
-  it('redirects with a 302 to the authorization service', (done) => {
-    request(app).get('/auth/loggedIn').expect(302).expect('Location', '/oauth/google', done);
-  });
+    it('redirects with a 302 to the authorization service', (done) => {
+      request(app).get('/auth/loggedIn').expect(302).expect('Location', '/oauth/google', done);
+    });
 
-  it('responds with 401 - unauthorized login when using an unauthorized user', (done) => {
-    request(app)
-      .get('/auth')
-      .expect(302)
-      .expect('Location', '/oauth/google')
-      .end((err) => {
-        if (err) done(err);
-        agent
-          .get('/oauth/google')
-          .send(unauthorizedUser)
-          .expect(302)
-          .expect('Location', '/failedLogin')
-          .end((err, req) => {
-            if (err) done(err);
-            agent.get('/failedLogin').expect(401, done);
-          });
-      });
+    it('responds with 401 - unauthorized login when using an unauthorized user', (done) => {
+      request(app)
+        .get('/auth')
+        .expect(302)
+        .expect('Location', '/oauth/google')
+        .end((err) => {
+          if (err) done(err);
+          agent
+            .get('/oauth/google')
+            .send(unauthorizedUser)
+            .expect(302)
+            .expect('Location', '/failedLogin')
+            .end((err, req) => {
+              if (err) done(err);
+              agent.get('/failedLogin').expect(401, done);
+            });
+        });
+    });
   });
-
   describe('handles adding the cookie to the superagent and all authorized routing', () => {
     const dbUser = { name: 'Authorized User', id: '1', _id: '1' };
     const authorizedUser = { user: { name: 'Authorized User' } };
     const newUser = { id: '123', name: 'J.R.R.', email: 'frodoisunderrated@fake.com' };
-
-    beforeAll(async () => {
-      await db.connect();
-      await db.clearCollection('users');
-      await db.clearCollection('failedRequests');
-      await db.clearCollection('errors');
-      await db.clearCollection('urls');
-    });
-
-    afterAll(async () => {
-      await db.clearCollection('users');
-      await db.clearCollection('failedRequests');
-      await db.clearCollection('errors');
-      await db.clearCollection('urls');
-      await db.disconnect();
-    });
 
     it('proves the superagent is not authorized', (done) => {
       agent.get('/auth/loggedIn').expect(302, done);
@@ -128,7 +113,7 @@ describe('test unauthorized route pathing', () => {
     });
 
     it('proves the superagent is maintaining cookie storage', (done) => {
-      agent.get('/user').expect(200).expect('Content-Type', /json/).expect({user: dbUser}, done);
+      agent.get('/user').expect(200).expect('Content-Type', /json/).expect({ user: dbUser }, done);
     });
 
     it('travels the newSlug route and successfully adds a randomized slug', (done) => {
