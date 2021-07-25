@@ -84,5 +84,4 @@ module.exports = {
   environment,
   googleAuthStrategy,
   collectionsHash,
-  seedUser,
 };
