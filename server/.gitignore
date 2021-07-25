@@ -3,4 +3,3 @@ node_modules
 .dockerignore
 log
 globalConfig.json
-coverage
