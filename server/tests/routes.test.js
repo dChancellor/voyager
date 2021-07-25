@@ -13,7 +13,7 @@ describe('test unauthorized route pathing', () => {
   });
 
   afterAll(async () => {
-    // await db.deleteDatabase('routes-test');
+    await db.deleteDatabase('routes-test');
     await db.disconnect();
   });
   it('responds with 200', (done) => {
@@ -128,7 +128,7 @@ describe('test unauthorized route pathing', () => {
     });
 
     it('proves the superagent is maintaining cookie storage', (done) => {
-      agent.get('/user').expect(200).expect('Content-Type', /json/).expect(dbUser, done);
+      agent.get('/user').expect(200).expect('Content-Type', /json/).expect({user: dbUser}, done);
     });
 
     it('travels the newSlug route and successfully adds a randomized slug', (done) => {

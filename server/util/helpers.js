@@ -14,8 +14,8 @@ async function cleanInputs(slug, url, forcedToRegenerate = false) {
 }
 
 function stripsWebAddress(url) {
-  url = url.replace(/^https?:\/\//, '') || url;
-  url = url.replace(/^(www\.)?/, '') || url;
+  url = url.replace(/^https?:\/\//, '');
+  url = url.replace(/^(www\.)?/, '');
   return url;
 }
 

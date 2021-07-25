@@ -18,7 +18,7 @@ const router = require('./router/router');
 app.use(express.json());
 
 app.use(helmet());
-app.use(cors({credentials: true, origin: 'http://localhost:5000'}));
+app.use(cors({ credentials: true, origin: client }));
 
 var accessLogStream = rfs.createStream('access.log', {
   interval: '1d', // rotate daily
@@ -61,7 +61,6 @@ app.use(
 
 app.get('/user', (req, res) => {
   res.locals = req.user;
-  console.log(res.locals);
   res.status(200).send({ user: res.locals });
 });
 
