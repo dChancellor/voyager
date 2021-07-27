@@ -3,13 +3,8 @@ name: Deploy to Docker
 on:
   push:
     branches: [master]
-    # paths:
-    # - 'server/**'
-
-# defaults:
-#   run:
-#     shell: bash
-#     working-directory: server
+    paths:
+    - 'server/**'
 
 jobs:
   push_to_docker:
