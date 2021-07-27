@@ -1,4 +1,4 @@
-export const server = process.env.server;
+export const server = 'https://lws.api.chancellor.tech';
 
 export const getUser = async () => {
   return fetch(`${server}/user`, {
