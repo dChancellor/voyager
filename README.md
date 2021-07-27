@@ -1,22 +1,22 @@
 <div align="center">
   <br></br>
-  <img style="border-radius:5px; margin-bottom:1rem;" src="./.readme-assets/header.gif">
-  <h1 align="center">
+  <img src="./.readme-assets/header.gif">
+  <h1>
     Voyager - a full stack url shortener
     <br>
   </h1>      
 
-  <p align="center">
+  <p>
   A simple url shortener application with a Svelte and p5 front-end that you can stare at for hours. The post endpoints are protected by Google's OAuth, but anyone can access already created slugs.
     <br>
   <p>
 
-  <div style="display:flex; align-items:center; justify-content:center;">
+  <div>
    <strong>CSS</strong>&nbsp;  <img src="./.readme-assets/css.png">&nbsp; &nbsp; <strong>Vanilla</strong> &nbsp; <img src="./.readme-assets/javascript.png"> &nbsp; &nbsp;  <strong>Svelte</strong> &nbsp; <img src="./.readme-assets/svelte.png"> &nbsp; &nbsp; <strong>NodeJS</strong> &nbsp; <img src="./.readme-assets/nodejs.png"> &nbsp; &nbsp; 
   </div>
 
   <br>
-  <p align="display:flex; flex-flow:row nowrap; justify-content:center; align-items:center;">
+  <p>
       <img src="https://img.shields.io/github/last-commit/dChancellor/url_shortener?style=flat-square" />
     <a href='https://simple.wikipedia.org/wiki/MIT_License'>
         <img src="https://img.shields.io/badge/license-MIT-lightgrey" />
@@ -27,9 +27,10 @@
     </a>
   </p>
 
-  <p align="center">
+ 
   <img src="/.readme-assets/front.png">
   <br>
+  <p>
   refresh to see all 3 ship variations!
   </p>
   <br>
