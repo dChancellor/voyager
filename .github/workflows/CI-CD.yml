@@ -38,6 +38,7 @@ jobs:
   push_to_docker:
     name: Push to Docker Image on the Hub
     runs-on: ubuntu-latest
+    working-directory: ./server
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -50,7 +51,6 @@ jobs:
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
-        working-directory: ./server
         with:
           push: true
           tags: dchancellor/voyager:latest
