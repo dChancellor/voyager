@@ -3,19 +3,18 @@ name: Deploy to Docker
 on:
   push:
     branches: [master]
-    paths:
-    - 'server/**'
+    # paths:
+    # - 'server/**'
 
 defaults:
   run:
     shell: bash
     working-directory: server
-    
+
 jobs:
   push_to_docker:
     name: Push to Docker Image on the Hub
     runs-on: ubuntu-latest
-
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
