@@ -34,5 +34,5 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          context: ./server
+          context: server
           tags: dchancellor/voyager:latest
