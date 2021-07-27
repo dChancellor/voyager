@@ -1,13 +1,10 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+# name: Node Test
 
-name: Node CI and Deploy to Docker & Packages
-
-on:
-  push:
-    branches: [master]
+# on:
+#   push:
+#     branches: [master]
   
-jobs:
+# jobs:
   # test:
   #   name: Testing code before deployment
   #   runs-on: ubuntu-latest
