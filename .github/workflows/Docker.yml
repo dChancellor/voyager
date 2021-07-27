@@ -6,10 +6,10 @@ on:
     # paths:
     # - 'server/**'
 
-# defaults:
-#   run:
-#     shell: bash
-#     working-directory: server
+defaults:
+  run:
+    shell: bash
+    working-directory: server
 
 jobs:
   push_to_docker:
@@ -34,5 +34,5 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          context: server
+          context: .
           tags: dchancellor/voyager:latest
