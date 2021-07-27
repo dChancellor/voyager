@@ -31,7 +31,7 @@
 
   let submitSearch = async () => {
     errorMessage = null;
-    if (search.length === 0) return missingRequirement = true;
+    if (search.length === 0) return (missingRequirement = true);
     missingRequirement = false;
     retrievingData = true;
     [slugs, error] = await getSlugs(search);

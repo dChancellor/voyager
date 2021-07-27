@@ -5,7 +5,10 @@ export const getUser = async () => {
     credentials: 'include',
   })
     .then((response) => response.json())
-    .then((data) => data.user?.displayName.split(' ')[0])
+    .then((data) => {
+      console.log(data);
+      data.user?.displayName.split(' ')[0];
+    })
     .catch((err) => console.log(err));
 };
 

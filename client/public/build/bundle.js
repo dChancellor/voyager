@@ -27,120 +27,11 @@ var app = (function () {
     function is_empty(obj) {
         return Object.keys(obj).length === 0;
     }
-
-    // Track which nodes are claimed during hydration. Unclaimed nodes can then be removed from the DOM
-    // at the end of hydration without touching the remaining nodes.
-    let is_hydrating = false;
-    function start_hydrating() {
-        is_hydrating = true;
-    }
-    function end_hydrating() {
-        is_hydrating = false;
-    }
-    function upper_bound(low, high, key, value) {
-        // Return first index of value larger than input value in the range [low, high)
-        while (low < high) {
-            const mid = low + ((high - low) >> 1);
-            if (key(mid) <= value) {
-                low = mid + 1;
-            }
-            else {
-                high = mid;
-            }
-        }
-        return low;
-    }
-    function init_hydrate(target) {
-        if (target.hydrate_init)
-            return;
-        target.hydrate_init = true;
-        // We know that all children have claim_order values since the unclaimed have been detached
-        const children = target.childNodes;
-        /*
-        * Reorder claimed children optimally.
-        * We can reorder claimed children optimally by finding the longest subsequence of
-        * nodes that are already claimed in order and only moving the rest. The longest
-        * subsequence subsequence of nodes that are claimed in order can be found by
-        * computing the longest increasing subsequence of .claim_order values.
-        *
-        * This algorithm is optimal in generating the least amount of reorder operations
-        * possible.
-        *
-        * Proof:
-        * We know that, given a set of reordering operations, the nodes that do not move
-        * always form an increasing subsequence, since they do not move among each other
-        * meaning that they must be already ordered among each other. Thus, the maximal
-        * set of nodes that do not move form a longest increasing subsequence.
-        */
-        // Compute longest increasing subsequence
-        // m: subsequence length j => index k of smallest value that ends an increasing subsequence of length j
-        const m = new Int32Array(children.length + 1);
-        // Predecessor indices + 1
-        const p = new Int32Array(children.length);
-        m[0] = -1;
-        let longest = 0;
-        for (let i = 0; i < children.length; i++) {
-            const current = children[i].claim_order;
-            // Find the largest subsequence length such that it ends in a value less than our current value
-            // upper_bound returns first greater value, so we subtract one
-            const seqLen = upper_bound(1, longest + 1, idx => children[m[idx]].claim_order, current) - 1;
-            p[i] = m[seqLen] + 1;
-            const newLen = seqLen + 1;
-            // We can guarantee that current is the smallest value. Otherwise, we would have generated a longer sequence.
-            m[newLen] = i;
-            longest = Math.max(newLen, longest);
-        }
-        // The longest increasing subsequence of nodes (initially reversed)
-        const lis = [];
-        // The rest of the nodes, nodes that will be moved
-        const toMove = [];
-        let last = children.length - 1;
-        for (let cur = m[longest] + 1; cur != 0; cur = p[cur - 1]) {
-            lis.push(children[cur - 1]);
-            for (; last >= cur; last--) {
-                toMove.push(children[last]);
-            }
-            last--;
-        }
-        for (; last >= 0; last--) {
-            toMove.push(children[last]);
-        }
-        lis.reverse();
-        // We sort the nodes being moved to guarantee that their insertion order matches the claim order
-        toMove.sort((a, b) => a.claim_order - b.claim_order);
-        // Finally, we move the nodes
-        for (let i = 0, j = 0; i < toMove.length; i++) {
-            while (j < lis.length && toMove[i].claim_order >= lis[j].claim_order) {
-                j++;
-            }
-            const anchor = j < lis.length ? lis[j] : null;
-            target.insertBefore(toMove[i], anchor);
-        }
-    }
     function append(target, node) {
-        if (is_hydrating) {
-            init_hydrate(target);
-            if ((target.actual_end_child === undefined) || ((target.actual_end_child !== null) && (target.actual_end_child.parentElement !== target))) {
-                target.actual_end_child = target.firstChild;
-            }
-            if (node !== target.actual_end_child) {
-                target.insertBefore(node, target.actual_end_child);
-            }
-            else {
-                target.actual_end_child = node.nextSibling;
-            }
-        }
-        else if (node.parentNode !== target) {
-            target.appendChild(node);
-        }
+        target.appendChild(node);
     }
     function insert(target, node, anchor) {
-        if (is_hydrating && !anchor) {
-            append(target, node);
-        }
-        else if (node.parentNode !== target || (anchor && node.nextSibling !== anchor)) {
-            target.insertBefore(node, anchor || null);
-        }
+        target.insertBefore(node, anchor || null);
     }
     function detach(node) {
         node.parentNode.removeChild(node);
@@ -176,9 +67,9 @@ var app = (function () {
     function toggle_class(element, name, toggle) {
         element.classList[toggle ? 'add' : 'remove'](name);
     }
-    function custom_event(type, detail) {
+    function custom_event(type, detail, bubbles = false) {
         const e = document.createEvent('CustomEvent');
-        e.initCustomEvent(type, false, false, detail);
+        e.initCustomEvent(type, bubbles, false, detail);
         return e;
     }
 
@@ -441,7 +332,7 @@ var app = (function () {
         }
         component.$$.dirty[(i / 31) | 0] |= (1 << (i % 31));
     }
-    function init(component, options, instance, create_fragment, not_equal, props, dirty = [-1]) {
+    function init(component, options, instance, create_fragment, not_equal, props, append_styles, dirty = [-1]) {
         const parent_component = current_component;
         set_current_component(component);
         const $$ = component.$$ = {
@@ -462,8 +353,10 @@ var app = (function () {
             // everything else
             callbacks: blank_object(),
             dirty,
-            skip_bound: false
+            skip_bound: false,
+            root: options.target || parent_component.$$.root
         };
+        append_styles && append_styles($$.root);
         let ready = false;
         $$.ctx = instance
             ? instance(component, options.props || {}, (i, ret, ...rest) => {
@@ -484,7 +377,6 @@ var app = (function () {
         $$.fragment = create_fragment ? create_fragment($$.ctx) : false;
         if (options.target) {
             if (options.hydrate) {
-                start_hydrating();
                 const nodes = children(options.target);
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 $$.fragment && $$.fragment.l(nodes);
@@ -497,7 +389,6 @@ var app = (function () {
             if (options.intro)
                 transition_in(component.$$.fragment);
             mount_component(component, options.target, options.anchor, options.customElement);
-            end_hydrating();
             flush();
         }
         set_current_component(parent_component);
@@ -529,7 +420,7 @@ var app = (function () {
     }
 
     function dispatch_dev(type, detail) {
-        document.dispatchEvent(custom_event(type, Object.assign({ version: '3.38.3' }, detail)));
+        document.dispatchEvent(custom_event(type, Object.assign({ version: '3.40.3' }, detail), true));
     }
     function append_dev(target, node) {
         dispatch_dev('SvelteDOMInsert', { target, node });
@@ -606,7 +497,7 @@ var app = (function () {
         $inject_state() { }
     }
 
-    /* src/components/micro-components/LeftArrow.svelte generated by Svelte v3.38.3 */
+    /* src/components/micro-components/LeftArrow.svelte generated by Svelte v3.40.3 */
     const file$4 = "src/components/micro-components/LeftArrow.svelte";
 
     function create_fragment$4(ctx) {
@@ -668,15 +559,15 @@ var app = (function () {
 
     function instance$4($$self, $$props, $$invalidate) {
     	let { $$slots: slots = {}, $$scope } = $$props;
-    	validate_slots("LeftArrow", slots, []);
+    	validate_slots('LeftArrow', slots, []);
     	const dispatch = createEventDispatcher();
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<LeftArrow> was created with unknown prop '${key}'`);
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<LeftArrow> was created with unknown prop '${key}'`);
     	});
 
-    	const click_handler = () => dispatch("decrement");
+    	const click_handler = () => dispatch('decrement');
     	$$self.$capture_state = () => ({ createEventDispatcher, dispatch });
     	return [dispatch, click_handler];
     }
@@ -695,7 +586,7 @@ var app = (function () {
     	}
     }
 
-    /* src/components/micro-components/RightArrow.svelte generated by Svelte v3.38.3 */
+    /* src/components/micro-components/RightArrow.svelte generated by Svelte v3.40.3 */
     const file$3 = "src/components/micro-components/RightArrow.svelte";
 
     function create_fragment$3(ctx) {
@@ -758,15 +649,15 @@ var app = (function () {
 
     function instance$3($$self, $$props, $$invalidate) {
     	let { $$slots: slots = {}, $$scope } = $$props;
-    	validate_slots("RightArrow", slots, []);
+    	validate_slots('RightArrow', slots, []);
     	const dispatch = createEventDispatcher();
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<RightArrow> was created with unknown prop '${key}'`);
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<RightArrow> was created with unknown prop '${key}'`);
     	});
 
-    	const click_handler = () => dispatch("increment");
+    	const click_handler = () => dispatch('increment');
     	$$self.$capture_state = () => ({ createEventDispatcher, dispatch });
     	return [dispatch, click_handler];
     }
@@ -785,7 +676,7 @@ var app = (function () {
     	}
     }
 
-    /* src/components/micro-components/TextField.svelte generated by Svelte v3.38.3 */
+    /* src/components/micro-components/TextField.svelte generated by Svelte v3.40.3 */
     const file$2 = "src/components/micro-components/TextField.svelte";
 
     // (22:0) {#if error}
@@ -922,20 +813,20 @@ var app = (function () {
     function instance$2($$self, $$props, $$invalidate) {
     	let empty;
     	let { $$slots: slots = {}, $$scope } = $$props;
-    	validate_slots("TextField", slots, []);
+    	validate_slots('TextField', slots, []);
     	const dispatch = createEventDispatcher();
     	let { placeholder } = $$props;
     	let { required } = $$props;
     	let { value } = $$props;
     	let { error } = $$props;
     	let textContent = value;
-    	const writable_props = ["placeholder", "required", "value", "error"];
+    	const writable_props = ['placeholder', 'required', 'value', 'error'];
 
     	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<TextField> was created with unknown prop '${key}'`);
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<TextField> was created with unknown prop '${key}'`);
     	});
 
-    	const blur_handler = () => dispatch("save", textContent);
+    	const blur_handler = () => dispatch('save', textContent);
 
     	function p_input_handler() {
     		textContent = this.textContent;
@@ -943,10 +834,10 @@ var app = (function () {
     	}
 
     	$$self.$$set = $$props => {
-    		if ("placeholder" in $$props) $$invalidate(0, placeholder = $$props.placeholder);
-    		if ("required" in $$props) $$invalidate(1, required = $$props.required);
-    		if ("value" in $$props) $$invalidate(6, value = $$props.value);
-    		if ("error" in $$props) $$invalidate(2, error = $$props.error);
+    		if ('placeholder' in $$props) $$invalidate(0, placeholder = $$props.placeholder);
+    		if ('required' in $$props) $$invalidate(1, required = $$props.required);
+    		if ('value' in $$props) $$invalidate(6, value = $$props.value);
+    		if ('error' in $$props) $$invalidate(2, error = $$props.error);
     	};
 
     	$$self.$capture_state = () => ({
@@ -961,12 +852,12 @@ var app = (function () {
     	});
 
     	$$self.$inject_state = $$props => {
-    		if ("placeholder" in $$props) $$invalidate(0, placeholder = $$props.placeholder);
-    		if ("required" in $$props) $$invalidate(1, required = $$props.required);
-    		if ("value" in $$props) $$invalidate(6, value = $$props.value);
-    		if ("error" in $$props) $$invalidate(2, error = $$props.error);
-    		if ("textContent" in $$props) $$invalidate(3, textContent = $$props.textContent);
-    		if ("empty" in $$props) $$invalidate(4, empty = $$props.empty);
+    		if ('placeholder' in $$props) $$invalidate(0, placeholder = $$props.placeholder);
+    		if ('required' in $$props) $$invalidate(1, required = $$props.required);
+    		if ('value' in $$props) $$invalidate(6, value = $$props.value);
+    		if ('error' in $$props) $$invalidate(2, error = $$props.error);
+    		if ('textContent' in $$props) $$invalidate(3, textContent = $$props.textContent);
+    		if ('empty' in $$props) $$invalidate(4, empty = $$props.empty);
     	};
 
     	if ($$props && "$$inject" in $$props) {
@@ -975,7 +866,7 @@ var app = (function () {
 
     	$$self.$$.update = () => {
     		if ($$self.$$.dirty & /*textContent*/ 8) {
-    			$$invalidate(4, empty = textContent === "" ? true : false);
+    			$$invalidate(4, empty = textContent === '' ? true : false);
     		}
     	};
 
@@ -1013,19 +904,19 @@ var app = (function () {
     		const { ctx } = this.$$;
     		const props = options.props || {};
 
-    		if (/*placeholder*/ ctx[0] === undefined && !("placeholder" in props)) {
+    		if (/*placeholder*/ ctx[0] === undefined && !('placeholder' in props)) {
     			console.warn("<TextField> was created without expected prop 'placeholder'");
     		}
 
-    		if (/*required*/ ctx[1] === undefined && !("required" in props)) {
+    		if (/*required*/ ctx[1] === undefined && !('required' in props)) {
     			console.warn("<TextField> was created without expected prop 'required'");
     		}
 
-    		if (/*value*/ ctx[6] === undefined && !("value" in props)) {
+    		if (/*value*/ ctx[6] === undefined && !('value' in props)) {
     			console.warn("<TextField> was created without expected prop 'value'");
     		}
 
-    		if (/*error*/ ctx[2] === undefined && !("error" in props)) {
+    		if (/*error*/ ctx[2] === undefined && !('error' in props)) {
     			console.warn("<TextField> was created without expected prop 'error'");
     		}
     	}
@@ -1063,14 +954,17 @@ var app = (function () {
     	}
     }
 
-    const server = 'http://localhost:4000';
+    const server = 'https://lws.api.chancellor.tech';
 
     const getUser = async () => {
       return fetch(`${server}/user`, {
         credentials: 'include',
       })
         .then((response) => response.json())
-        .then((data) => data.user?.displayName.split(' ')[0])
+        .then((data) => {
+          console.log(data);
+          data.user?.displayName.split(' ')[0];
+        })
         .catch((err) => console.log(err));
     };
 
@@ -1122,7 +1016,7 @@ var app = (function () {
         });
     };
 
-    /* src/views/Authorized.svelte generated by Svelte v3.38.3 */
+    /* src/views/Authorized.svelte generated by Svelte v3.40.3 */
     const file$1 = "src/views/Authorized.svelte";
 
     function get_each_context(ctx, list, i) {
@@ -1382,25 +1276,25 @@ var app = (function () {
 
     function instance$1($$self, $$props, $$invalidate) {
     	let { $$slots: slots = {}, $$scope } = $$props;
-    	validate_slots("Authorized", slots, []);
+    	validate_slots('Authorized', slots, []);
     	let { user } = $$props;
     	let error = false;
 
     	let states = [
     		{
-    			name: "slug",
+    			name: 'slug',
     			fields: [
     				{
-    					name: "slug",
-    					placeholder: "goog",
+    					name: 'slug',
+    					placeholder: 'goog',
     					required: false,
-    					value: ""
+    					value: ''
     				},
     				{
-    					name: "url",
-    					placeholder: "www.google.com",
+    					name: 'url',
+    					placeholder: 'www.google.com',
     					required: true,
-    					value: ""
+    					value: ''
     				}
     			],
     			submit: async data => {
@@ -1420,25 +1314,25 @@ var app = (function () {
     			}
     		},
     		{
-    			name: "user",
+    			name: 'user',
     			fields: [
     				{
-    					name: "name",
-    					placeholder: "John",
+    					name: 'name',
+    					placeholder: 'John',
     					required: true,
-    					value: ""
+    					value: ''
     				},
     				{
-    					name: "googleId",
-    					placeholder: "12345",
+    					name: 'googleId',
+    					placeholder: '12345',
     					required: true,
-    					value: ""
+    					value: ''
     				},
     				{
-    					name: "email",
-    					placeholder: "john@fakeemail.com",
+    					name: 'email',
+    					placeholder: 'john@fakeemail.com',
     					required: false,
-    					value: ""
+    					value: ''
     				}
     			],
     			submit: async data => {
@@ -1467,20 +1361,20 @@ var app = (function () {
     		if (!error) await active.submit(active.fields);
     	};
 
-    	const writable_props = ["user"];
+    	const writable_props = ['user'];
 
     	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Authorized> was created with unknown prop '${key}'`);
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<Authorized> was created with unknown prop '${key}'`);
     	});
 
-    	const click_handler = () => activateState("slug");
-    	const click_handler_1 = () => activateState("user");
+    	const click_handler = () => activateState('slug');
+    	const click_handler_1 = () => activateState('user');
     	const click_handler_2 = () => location.href = `${server}/logout`;
     	const save_handler = (value, each_value, each_index, { detail: content }) => $$invalidate(1, each_value[each_index].value = content, active);
     	const click_handler_3 = () => handleSubmit();
 
     	$$self.$$set = $$props => {
-    		if ("user" in $$props) $$invalidate(0, user = $$props.user);
+    		if ('user' in $$props) $$invalidate(0, user = $$props.user);
     	};
 
     	$$self.$capture_state = () => ({
@@ -1497,12 +1391,12 @@ var app = (function () {
     	});
 
     	$$self.$inject_state = $$props => {
-    		if ("user" in $$props) $$invalidate(0, user = $$props.user);
-    		if ("error" in $$props) $$invalidate(2, error = $$props.error);
-    		if ("states" in $$props) states = $$props.states;
-    		if ("active" in $$props) $$invalidate(1, active = $$props.active);
-    		if ("activateState" in $$props) $$invalidate(3, activateState = $$props.activateState);
-    		if ("handleSubmit" in $$props) $$invalidate(4, handleSubmit = $$props.handleSubmit);
+    		if ('user' in $$props) $$invalidate(0, user = $$props.user);
+    		if ('error' in $$props) $$invalidate(2, error = $$props.error);
+    		if ('states' in $$props) states = $$props.states;
+    		if ('active' in $$props) $$invalidate(1, active = $$props.active);
+    		if ('activateState' in $$props) $$invalidate(3, activateState = $$props.activateState);
+    		if ('handleSubmit' in $$props) $$invalidate(4, handleSubmit = $$props.handleSubmit);
     	};
 
     	if ($$props && "$$inject" in $$props) {
@@ -1538,7 +1432,7 @@ var app = (function () {
     		const { ctx } = this.$$;
     		const props = options.props || {};
 
-    		if (/*user*/ ctx[0] === undefined && !("user" in props)) {
+    		if (/*user*/ ctx[0] === undefined && !('user' in props)) {
     			console.warn("<Authorized> was created without expected prop 'user'");
     		}
     	}
@@ -1552,7 +1446,7 @@ var app = (function () {
     	}
     }
 
-    /* src/App.svelte generated by Svelte v3.38.3 */
+    /* src/App.svelte generated by Svelte v3.40.3 */
     const file = "src/App.svelte";
 
     // (47:50) 
@@ -1580,14 +1474,14 @@ var app = (function () {
     				value: /*search*/ ctx[5],
     				required: true,
     				error: /*missingRequirement*/ ctx[6],
-    				placeholder: "www.google.com"
+    				placeholder: 'www.google.com'
     			},
     			$$inline: true
     		});
 
     	textfield.$on("save", /*save_handler*/ ctx[12]);
     	let if_block0 = /*retrievingData*/ ctx[8] && create_if_block_4(ctx);
-    	let if_block1 = !/*retrievingData*/ ctx[8] && /*slugs*/ ctx[0][0].slug != "" && create_if_block_3(ctx);
+    	let if_block1 = !/*retrievingData*/ ctx[8] && /*slugs*/ ctx[0][0].slug != '' && create_if_block_3(ctx);
     	let if_block2 = /*errorMessage*/ ctx[7] && create_if_block_2(ctx);
 
     	const block = {
@@ -1614,15 +1508,15 @@ var app = (function () {
     			if (if_block2) if_block2.c();
     			if_block2_anchor = empty();
     			attr_dev(h1, "class", "svelte-1jmuuk8");
-    			add_location(h1, file, 47, 4, 1362);
+    			add_location(h1, file, 47, 4, 1364);
     			attr_dev(button0, "class", "login svelte-1jmuuk8");
-    			add_location(button0, file, 48, 4, 1397);
+    			add_location(button0, file, 48, 4, 1399);
     			attr_dev(p, "class", "search-label svelte-1jmuuk8");
-    			add_location(p, file, 50, 6, 1539);
+    			add_location(p, file, 50, 6, 1541);
     			attr_dev(div, "class", "search-container svelte-1jmuuk8");
-    			add_location(div, file, 49, 4, 1502);
+    			add_location(div, file, 49, 4, 1504);
     			attr_dev(button1, "class", "submit svelte-1jmuuk8");
-    			add_location(button1, file, 59, 4, 1820);
+    			add_location(button1, file, 59, 4, 1822);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h1, anchor);
@@ -1670,7 +1564,7 @@ var app = (function () {
     				if_block0 = null;
     			}
 
-    			if (!/*retrievingData*/ ctx[8] && /*slugs*/ ctx[0][0].slug != "") {
+    			if (!/*retrievingData*/ ctx[8] && /*slugs*/ ctx[0][0].slug != '') {
     				if (if_block1) {
     					if_block1.p(ctx, dirty);
 
@@ -1805,7 +1699,7 @@ var app = (function () {
     		c: function create() {
     			div = element("div");
     			attr_dev(div, "class", "loader svelte-1jmuuk8");
-    			add_location(div, file, 61, 6, 1922);
+    			add_location(div, file, 61, 6, 1924);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -1856,9 +1750,9 @@ var app = (function () {
     			create_component(rightarrow.$$.fragment);
     			attr_dev(a, "href", a_href_value = "" + (server + "/" + /*slugs*/ ctx[0][/*slugIndex*/ ctx[1]].slug));
     			attr_dev(a, "class", "results svelte-1jmuuk8");
-    			add_location(a, file, 66, 8, 2108);
+    			add_location(a, file, 66, 8, 2110);
     			attr_dev(div, "class", "slugs-container svelte-1jmuuk8");
-    			add_location(div, file, 64, 6, 2010);
+    			add_location(div, file, 64, 6, 2012);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -1917,7 +1811,7 @@ var app = (function () {
     			p = element("p");
     			t = text(/*errorMessage*/ ctx[7]);
     			attr_dev(p, "class", "error svelte-1jmuuk8");
-    			add_location(p, file, 71, 6, 2309);
+    			add_location(p, file, 71, 6, 2311);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -1973,9 +1867,9 @@ var app = (function () {
     			if (if_block) if_block.c();
     			attr_dev(button, "class", "peace svelte-1jmuuk8");
     			toggle_class(button, "serenity", /*serenity*/ ctx[4]);
-    			add_location(button, file, 43, 2, 1141);
+    			add_location(button, file, 43, 2, 1143);
     			attr_dev(main, "class", "svelte-1jmuuk8");
-    			add_location(main, file, 42, 0, 1132);
+    			add_location(main, file, 42, 0, 1134);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -2070,15 +1964,15 @@ var app = (function () {
 
     function instance($$self, $$props, $$invalidate) {
     	let { $$slots: slots = {}, $$scope } = $$props;
-    	validate_slots("App", slots, []);
+    	validate_slots('App', slots, []);
     	let authenticating = true;
     	let user;
     	let serenity = false;
-    	let search = "";
+    	let search = '';
     	let missingRequirement = false;
     	let errorMessage;
     	let retrievingData = false;
-    	let slugs = [{ slug: "" }];
+    	let slugs = [{ slug: '' }];
     	let slugIndex = 0;
 
     	onMount(async () => {
@@ -2099,7 +1993,7 @@ var app = (function () {
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<App> was created with unknown prop '${key}'`);
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<App> was created with unknown prop '${key}'`);
     	});
 
     	const click_handler = () => $$invalidate(4, serenity = !serenity);
@@ -2131,16 +2025,16 @@ var app = (function () {
     	});
 
     	$$self.$inject_state = $$props => {
-    		if ("authenticating" in $$props) $$invalidate(2, authenticating = $$props.authenticating);
-    		if ("user" in $$props) $$invalidate(3, user = $$props.user);
-    		if ("serenity" in $$props) $$invalidate(4, serenity = $$props.serenity);
-    		if ("search" in $$props) $$invalidate(5, search = $$props.search);
-    		if ("missingRequirement" in $$props) $$invalidate(6, missingRequirement = $$props.missingRequirement);
-    		if ("errorMessage" in $$props) $$invalidate(7, errorMessage = $$props.errorMessage);
-    		if ("retrievingData" in $$props) $$invalidate(8, retrievingData = $$props.retrievingData);
-    		if ("slugs" in $$props) $$invalidate(0, slugs = $$props.slugs);
-    		if ("slugIndex" in $$props) $$invalidate(1, slugIndex = $$props.slugIndex);
-    		if ("submitSearch" in $$props) $$invalidate(9, submitSearch = $$props.submitSearch);
+    		if ('authenticating' in $$props) $$invalidate(2, authenticating = $$props.authenticating);
+    		if ('user' in $$props) $$invalidate(3, user = $$props.user);
+    		if ('serenity' in $$props) $$invalidate(4, serenity = $$props.serenity);
+    		if ('search' in $$props) $$invalidate(5, search = $$props.search);
+    		if ('missingRequirement' in $$props) $$invalidate(6, missingRequirement = $$props.missingRequirement);
+    		if ('errorMessage' in $$props) $$invalidate(7, errorMessage = $$props.errorMessage);
+    		if ('retrievingData' in $$props) $$invalidate(8, retrievingData = $$props.retrievingData);
+    		if ('slugs' in $$props) $$invalidate(0, slugs = $$props.slugs);
+    		if ('slugIndex' in $$props) $$invalidate(1, slugIndex = $$props.slugIndex);
+    		if ('submitSearch' in $$props) $$invalidate(9, submitSearch = $$props.submitSearch);
     	};
 
     	if ($$props && "$$inject" in $$props) {
