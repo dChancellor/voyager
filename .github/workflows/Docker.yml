@@ -10,7 +10,8 @@ defaults:
   run:
     shell: bash
     working-directory: server
-
+    
+jobs:
   push_to_docker:
     name: Push to Docker Image on the Hub
     runs-on: ubuntu-latest
