@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "jest && codecov",
+    "test": "jest --watchAll --verbose",
     "test-with-coverage": "jest --watchAll --verbose --coverage"
   },
   "keywords": [],

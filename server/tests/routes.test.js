@@ -17,7 +17,7 @@ describe('test unauthorized route pathing', () => {
     await db.disconnect();
   });
   describe('unauthorized route testing', () => {
-    it('responds with 200', (done) => {
+    it('responds with 200', async (done) => {
       request(app).get('/').expect(200).end(done);
     });
 
