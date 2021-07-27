@@ -8,33 +8,33 @@ on:
     branches: [master]
   
 jobs:
-  test:
-    name: Testing code before deployment
-    runs-on: ubuntu-latest
-    env:
-      CLIENT: ${{secrets.CLIENT}}
-      GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
-      GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
-      GOOGLE_CALLBACK_URL: ${{secrets.GOOGLE_CALLBACK_URL}}
-      COOKIE_KEY: ${{secrets.COOKIE_KEY}}
-      JEST_MONGO_PASSWORD: ${{secrets.JEST_MONGO_PASSWORD}}
-      JEST_MONGO_USERNAME: ${{secrets.JEST_MONGO_USERNAME}}
-      JEST_MONGO_HOST: ${{secrets.JEST_MONGO_HOST}}
-      JEST_MONGO_PORT: ${{secrets.JEST_MONGO_PORT}}
-      JEST_MONGO_DB: ${{secrets.JEST_MONGO_DB}}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 15
-      - name: Clean install dependencies
-        run: npm ci
-        working-directory: ./server
-      - name: Run Jest test suite
-        run: npm run test && codecov
-        working-directory: ./server
-      - name: Codecov
-        uses: codecov/codecov-action@v2.0.2
+  # test:
+  #   name: Testing code before deployment
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     CLIENT: ${{secrets.CLIENT}}
+  #     GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
+  #     GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+  #     GOOGLE_CALLBACK_URL: ${{secrets.GOOGLE_CALLBACK_URL}}
+  #     COOKIE_KEY: ${{secrets.COOKIE_KEY}}
+  #     JEST_MONGO_PASSWORD: ${{secrets.JEST_MONGO_PASSWORD}}
+  #     JEST_MONGO_USERNAME: ${{secrets.JEST_MONGO_USERNAME}}
+  #     JEST_MONGO_HOST: ${{secrets.JEST_MONGO_HOST}}
+  #     JEST_MONGO_PORT: ${{secrets.JEST_MONGO_PORT}}
+  #     JEST_MONGO_DB: ${{secrets.JEST_MONGO_DB}}
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 15
+  #     - name: Clean install dependencies
+  #       run: npm ci
+  #       working-directory: ./server
+  #     - name: Run Jest test suite
+  #       run: npm run test && codecov
+  #       working-directory: ./server
+  #     - name: Codecov
+  #       uses: codecov/codecov-action@v2.0.2
   push_to_docker:
     name: Push to Docker Image on the Hub
     runs-on: ubuntu-latest

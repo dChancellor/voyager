@@ -40,7 +40,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 const auth = environment === 'test' ? require('./tests/mockAuth') : require('./middlewares/auth');
-// const auth = require('./tests/mockAuth');
 app.use(async (req, res, next) => {
   await db.connect();
   next();

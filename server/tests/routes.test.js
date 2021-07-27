@@ -7,22 +7,23 @@ describe('test unauthorized route pathing', () => {
   const agent = request.agent(app);
   const unauthorizedUser = { user: { name: 'Unauthorized User' } };
 
-  beforeAll(async () => {
-    await db.connect('routes-test');
-    await db.createUniqueKey('users');
-  });
+  // beforeAll(async () => {
+  //   await db.deleteDatabase('lwspw_test');
+  //   await db.createDatabase('lwspw_test');
+  //   await db.connect('lwspw_test');
+  //   // await db.createUniqueKey('users');
+  // });
 
-  afterAll(async () => {
-    await db.deleteDatabase('routes-test');
-    await db.disconnect();
-  });
+  // afterAll(async () => {
+  //   // await db.deleteDatabase('lwspw_test');
+  //   await db.disconnect();
+  // });
   describe('unauthorized route testing', () => {
     it('responds with 200', async (done) => {
       request(app).get('/').expect(200).end(done);
     });
 
     it('returns a redirect to the url found with given slug', async (done) => {
-      await db.createNewSlug('goog', 'google.com');
       request(app).get('/goog').expect(302, done);
     });
 
