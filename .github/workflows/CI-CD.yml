@@ -6,7 +6,8 @@ name: Node CI and Deploy to Docker & Packages
 on:
   push:
     branches: [master]
-
+  workflow_dispatch:
+  
 jobs:
   test:
     name: Testing code before deployment
