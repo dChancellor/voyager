@@ -32,7 +32,7 @@ var accessLogStream = rfs.createStream('access.log', {
 });
 app.use(morgan('combined', { stream: accessLogStream }));
 
-app.set('trust proxy');
+app.set('trust proxy',1);
 
 app.use(
   session({
@@ -41,7 +41,7 @@ app.use(
     resave: true,
     saveUninitialized: true,
     store: MongoStore.create({ mongoUrl: databases[environment].uri }),
-    cookie: { sameSite: 'lax', secure: false, httpOnly: false, maxAge: 24 * 60 * 60 * 1000 }, // 1 Day
+    cookie: { sameSite: 'none', secure: true, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }, // 1 Day
   }),
 );
 app.use(passport.initialize());
