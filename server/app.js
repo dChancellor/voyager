@@ -59,6 +59,7 @@ app.use(
 );
 
 app.get('/user', (req, res) => {
+  console.log('USER', req.user);
   res.locals = req.user;
   res.status(200).send({ user: res.locals });
 });
