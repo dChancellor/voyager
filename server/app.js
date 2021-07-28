@@ -31,7 +31,7 @@ var accessLogStream = rfs.createStream('access.log', {
 });
 app.use(morgan('combined', { stream: accessLogStream }));
 
-app.set('trust proxy, 1');
+app.set('trust proxy');
 
 app.use(
   session({
@@ -40,7 +40,7 @@ app.use(
     resave: true,
     saveUninitialized: true,
     store: MongoStore.create({ mongoUrl: databases[environment].uri }),
-    cookie: { sameSite: 'none', secure: true, httpOnly: false, maxAge: 24 * 60 * 60 * 1000 }, // 1 Day
+    cookie: { sameSite: 'lax', secure: false, httpOnly: false, maxAge: 24 * 60 * 60 * 1000 }, // 1 Day
   }),
 );
 app.use(passport.initialize());
@@ -55,8 +55,11 @@ app.use(
   rateLimit({ windowMs: 30 * 1000, max: 20 }),
   function (req, res, next) {
     if (req.user) {
+      console.log('user found');
       next();
     } else {
+      console.log('user not found');
+
       res.redirect('/oauth/google');
     }
   },
