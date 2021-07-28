@@ -13,6 +13,7 @@
   let search = '';
   let missingRequirement = false;
   let errorMessage;
+  let isHelperVisible = true;
 
   let retrievingData = false;
   let slugs = [{ slug: '' }];
@@ -25,7 +26,7 @@
   }
 
   onMount(async () => {
-    user = await getUser();
+    // user = await getUser();
     authenticating = false;
   });
 
@@ -34,7 +35,8 @@
     if (search.length === 0) return (missingRequirement = true);
     missingRequirement = false;
     retrievingData = true;
-    [slugs, error] = await getSlugs(search);
+    let [data, error] = await getSlugs(search);
+    slugs = data;
     if (error) errorMessage = error;
     retrievingData = false;
   };
@@ -51,11 +53,25 @@
       <p class="search-label">or search for existing slugs</p>
       <TextField
         value={search}
-        on:save={({ detail: content }) => (search = content)}
+        on:save={({ detail: content }) => {
+          isHelperVisible = false;
+          search = content;
+        }}
         required={true}
         error={missingRequirement}
         placeholder={'www.google.com'}
       />
+      {#if isHelperVisible}
+        <div
+          on:click={() => {
+            isHelperVisible = false;
+            search = 'chancellor.tech';
+          }}
+          class="helper-alert"
+        >
+          Click here to search for my portfolio at chancellor.tech!
+        </div>
+      {/if}
     </div>
     <button class="submit" on:click={() => submitSearch()}>Submit</button>
     {#if retrievingData}
@@ -75,6 +91,18 @@
 </main>
 
 <style>
+  .helper-alert {
+    position: absolute;
+    background-color: pink;
+    border-radius: 10px 10px 10px 0;
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    right: -8.5rem;
+    max-width: 9rem;
+    top: -2.6rem;
+    cursor: pointer;
+    text-align: center;
+  }
   main {
     display: flex;
     flex-flow: column nowrap;
@@ -135,6 +163,7 @@
     flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
+    position: relative;
   }
   .search-label {
     font-variant: small-caps;

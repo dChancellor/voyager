@@ -6,8 +6,7 @@ export const getUser = async () => {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
-      data.user?.displayName.split(' ')[0];
+      return data.user?.displayName.split(' ')[0];
     })
     .catch((err) => console.log(err));
 };

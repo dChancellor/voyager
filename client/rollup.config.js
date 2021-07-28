@@ -1,5 +1,4 @@
 import svelte from 'rollup-plugin-svelte';
-import replace from '@rollup/plugin-replace';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
@@ -7,7 +6,6 @@ import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
 
 const production = !process.env.ROLLUP_WATCH;
-const url = process.env.SERVER;
 
 function serve() {
 	let server;
@@ -57,13 +55,6 @@ export default {
 		resolve({
 			browser: true,
 			dedupe: ['svelte']
-		}),
-		replace({
-			process: JSON.stringify({
-				env: {
-				  server: url,
-				}
-			  }),
 		}),
 		commonjs(),
 

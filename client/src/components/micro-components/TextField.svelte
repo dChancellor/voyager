@@ -5,7 +5,7 @@
   export let required;
   export let value;
   export let error;
-  let textContent = value;
+  $: textContent = value;
   $: empty = textContent === '' ? true : false;
 </script>
 
