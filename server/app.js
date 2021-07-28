@@ -40,7 +40,7 @@ app.use(
     resave: true,
     saveUninitialized: true,
     store: MongoStore.create({ mongoUrl: databases[environment].uri }),
-    cookie: { sameSite: 'lax', secure: true, httpOnly: false, maxAge: 24 * 60 * 60 * 1000 }, // 1 Day
+    cookie: { sameSite: 'none', secure: true, httpOnly: false, maxAge: 24 * 60 * 60 * 1000 }, // 1 Day
   }),
 );
 app.use(passport.initialize());
