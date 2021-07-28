@@ -20,7 +20,6 @@ app.use(express.json());
 
 app.use(helmet());
 app.use(async (req, res, next) => {
-  console.log(req);
   await db.connect();
   next();
 });
@@ -32,7 +31,7 @@ var accessLogStream = rfs.createStream('access.log', {
 });
 app.use(morgan('combined', { stream: accessLogStream }));
 
-app.set('trust proxy',1);
+app.set('trust proxy', true);
 
 app.use(
   session({
@@ -56,18 +55,14 @@ app.use(
   rateLimit({ windowMs: 30 * 1000, max: 20 }),
   function (req, res, next) {
     if (req.user) {
-      console.log('user found');
       next();
     } else {
-      console.log('user not found');
-
       res.redirect('/oauth/google');
     }
   },
 );
 
 app.get('/user', (req, res) => {
-  console.log('USER', req.user);
   res.locals = req.user;
   res.status(200).send({ user: res.locals });
 });

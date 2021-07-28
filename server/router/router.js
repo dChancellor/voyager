@@ -22,6 +22,7 @@ router.post('/url', async (req, res) => {
   let { url } = req.body;
   url = stripsWebAddress(url);
   const result = await db.getSlugsFromUrl(url);
+  console.log(result);
   if (result.length > 0) return res.status(200).send(result);
   res.status(404).send({ message: 'Url not found' });
 });
