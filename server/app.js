@@ -6,11 +6,12 @@ const helmet = require('helmet');
 const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const rateLimit = require('express-rate-limit');
 const slowDown = require('express-slow-down');
 
 const errors = require('./middlewares/error');
-const { db, cookieKey, environment, client } = require('./util/config');
+const { db, databases, cookieKey, environment, client } = require('./util/config');
 
 const app = express();
 const router = require('./router/router');
@@ -18,6 +19,10 @@ const router = require('./router/router');
 app.use(express.json());
 
 app.use(helmet());
+app.use(async (req, res, next) => {
+  await db.connect();
+  next();
+});
 app.use(cors({ credentials: true, origin: client }));
 
 var accessLogStream = rfs.createStream('access.log', {
@@ -26,24 +31,23 @@ var accessLogStream = rfs.createStream('access.log', {
 });
 app.use(morgan('combined', { stream: accessLogStream }));
 
-app.set('trust proxy');
+app.set('trust proxy, 1');
+
 app.use(
   session({
     name: 'sessionAuth',
     secret: cookieKey,
     resave: true,
     saveUninitialized: true,
-    cookie: { sameSite: 'lax', secure: false, httpOnly: false, maxAge: 24 * 60 * 60 * 1000 }, // 1 Day
+    store: MongoStore.create({ mongoUrl: databases[environment].uri }),
+    cookie: { sameSite: 'lax', secure: true, httpOnly: false, maxAge: 24 * 60 * 60 * 1000 }, // 1 Day
   }),
 );
 app.use(passport.initialize());
 app.use(passport.session());
 
 const auth = environment === 'test' ? require('./tests/mockAuth') : require('./middlewares/auth');
-app.use(async (req, res, next) => {
-  await db.connect();
-  next();
-});
+
 app.use('/oauth', auth);
 app.use(
   '/auth',
