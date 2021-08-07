@@ -147,13 +147,13 @@
     filter: brightness(120%) contrast(120%);
   }
   .login {
-    background-color: #c8473c;
+    background-color: #8a3333;
     padding: 0.7rem 1.5rem;
     font-size: 1.2rem;
     box-shadow: 2px 2px 2px rgba(148, 33, 33, 0.582);
   }
   .submit {
-    background-color: #2d7d9c;
+    background-color: #456571;
     padding: 0.4rem 1rem;
     font-size: 1.2rem;
     box-shadow: 2px 2px 2px #1b4b5e;
