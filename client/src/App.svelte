@@ -48,6 +48,7 @@
     <Authorized {user} />
   {:else if !user && !authenticating && !serenity}
     <h1>Voyage Across the Web</h1>
+    <p class="login-warning">You must already be a member to login</p>
     <button class="login" on:click={() => (location.href = `${server}/auth`)}>Login with Google</button>
     <div class="search-container">
       <p class="search-label">or search for existing slugs</p>
@@ -151,6 +152,12 @@
     padding: 0.7rem 1.5rem;
     font-size: 1.2rem;
     box-shadow: 2px 2px 2px rgba(148, 33, 33, 0.582);
+  }
+  .login-warning {
+    font-variant: small-caps;
+    font-size: 1.1rem;
+    font-family: 'Poppins', display;
+    color: hsl(0, 100%, 71%);
   }
   .submit {
     background-color: #456571;
